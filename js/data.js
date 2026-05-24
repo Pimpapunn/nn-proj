@@ -53,7 +53,7 @@ const RESEARCH_DATA = {
 
       systems: [
         { name: 'ระบบ CMU Research', 
-          url: 'https://research.cmu.ac.th', 
+          url: 'https://research.mis.cmu.ac.th/', 
           usage: 'ลงทะเบียนและเสนอข้อเสนอโครงการวิจัยในระบบมหาวิทยาลัย',
           image: 'researcher.1.jpg' }
       ],
@@ -297,7 +297,7 @@ const RESEARCH_DATA = {
       ],
 
       systems: [
-        { name: 'ระบบ CMU Research', url: 'https://research.cmu.ac.th', usage: 'กรอกรายงานความก้าวหน้าเพื่อขออนุมัติเบิกเงินงวดในระดับมหาวิทยาลัย' },
+        { name: 'ระบบ CMU Research', url: 'https://research.mis.cmu.ac.th/', usage: 'กรอกรายงานความก้าวหน้าเพื่อขออนุมัติเบิกเงินงวดในระดับมหาวิทยาลัย' },
         { name: 'ระบบ e-document มหาวิทยาลัยเชียงใหม่', url: 'https://edocument.cmu.ac.th', usage: 'นำเสนอคำเสนออนุมัติเบิกจ่ายเงินงวดและส่งพัสดุราชการ' }
       ],
 
@@ -440,7 +440,7 @@ const RESEARCH_DATA = {
       ],
 
       systems: [
-        { name: 'ระบบ CMU Research', url: 'https://research.cmu.ac.th', usage: 'กรอกและยื่นรายงานความก้าวหน้าวิจัยออนไลน์ในระบบมหาวิทยาลัย' },
+        { name: 'ระบบ CMU Research', url: 'https://research.mis.cmu.ac.th/', usage: 'กรอกและยื่นรายงานความก้าวหน้าวิจัยออนไลน์ในระบบมหาวิทยาลัย' },
         { name: 'ระบบฐานข้อมูล e-research คณะสังคมศาสตร์', url: '#', usage: 'ลงบันทึกและตรวจสอบวันสิ้นสุดสัญญาโครงการวิจัยเพื่อติดตามรายงาน' }
       ],
 
@@ -532,7 +532,7 @@ const RESEARCH_DATA = {
       ],
 
       systems: [
-        { name: 'ระบบ CMU Research', url: 'https://research.cmu.ac.th', usage: 'ระบบฐานข้อมูลงานวิจัยกลางสำหรับขึ้นทะเบียนและบันทึกโครงการของบุคลากร มช. ทุกท่าน' },
+        { name: 'ระบบ CMU Research', url: 'https://research.mis.cmu.ac.th/', usage: 'ระบบฐานข้อมูลงานวิจัยกลางสำหรับขึ้นทะเบียนและบันทึกโครงการของบุคลากร มช. ทุกท่าน' },
         { name: 'ระบบฐานข้อมูล e-research คณะสังคมศาสตร์', url: '#', usage: 'ระบบฐานข้อมูลภายในคณะสำหรับทะเบียนโครงการวิจัยและบันทึกประวัติบัญชีการเงิน' }
       ],
 
