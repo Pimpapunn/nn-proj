@@ -14,6 +14,22 @@ let activeModalTab = 'workflow';
 let chatHistory = [];
 let currentChatStep = 'start';
 
+// รายการไฟล์ที่มีในโฟลเดอร์ data_research
+const AVAILABLE_RESEARCH_FILES = [
+  "1. ประกาศเงินสมทบ - คณะฯ ปี 2564.pdf",
+  "2. ระเบียบ มช. - จัดซื้อจัดจ้างบริหารพัสดุ.pdf",
+  "3. ระเบียบ มช. - การจัดการทรัพย์สินทางปัญญา_.pdf",
+  "4.1 ขั้นตอนการดำเนินงานโครงการวิจัย (หัวหน้าโครงการวิจัย).pdf",
+  "4.2 ขั้นตอนการดำเนินงานโครงการวิจัย (ผู้ร่วมวิจัย).pdf",
+  "4.3 ขั้นตอนการเปิด-ปิดบัญชีเงินฝากโครงการวิจัย.pdf",
+  "5.1 หนังสือมอบอำนาจฉบับใหม่-e-sign.docx",
+  "5.2 ตัวอย่าง-การคาดสำเนาบัตรพนักงาน-อธิการบดี.docx",
+  "6. หนังสือรับรองการปฏิบัติงานของหัวหน้าโครงการ (มช.).doc",
+  "7. หนังสือรับรองการปฏิบัติงานของหัวหน้าโครงการ (คณะฯ).doc",
+  "8.Certifying Letter of Project Leader to CMU.docx",
+  "9.Certifying Letter of Project Leader to Faculty.docx"
+];
+
 // โหลดระบบเมื่อหน้าเว็บพร้อม
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
@@ -331,20 +347,46 @@ function renderRequiredDocs(service) {
     const isRequired = doc.status === 'จำเป็น' || doc.status === 'จำเป็นตอนสิ้นสุดโครงการ' || doc.status === 'จำเป็นถ้าขอค่าตีพิมพ์';
     const badgeClass = isRequired ? 'required' : 'optional';
 
-    return `
-      <div class="document-item glass-panel">
-        <div class="doc-info">
-          <div class="doc-file-icon ${fileClass}" aria-hidden="true">
-            <span class="material-icons">${icon}</span>
+    // ตรวจสอบว่าสามารถเชื่อมเอกสารไปยัง data_research ได้หรือไม่
+    const isLinkable = AVAILABLE_RESEARCH_FILES.includes(doc.name);
+    
+    if (isLinkable) {
+      const docUrl = `data_research/${encodeURIComponent(doc.name)}`;
+      return `
+        <a href="${docUrl}" target="_blank" class="document-item linkable glass-panel" title="คลิกเพื่อเปิดหรือดาวน์โหลดเอกสาร">
+          <div class="doc-info">
+            <div class="doc-file-icon ${fileClass}" aria-hidden="true">
+              <span class="material-icons">${icon}</span>
+            </div>
+            <div class="doc-details">
+              <h4>${doc.name}</h4>
+              <span class="doc-format-text">ประเภทรูปแบบ: ${doc.type.toUpperCase()} | <span class="click-hint-inline"><span class="material-icons" style="font-size: 11px; vertical-align: middle;">open_in_new</span> คลิกเพื่อเปิดเอกสาร</span></span>
+            </div>
           </div>
-          <div class="doc-details">
-            <h4>${doc.name}</h4>
-            <span>ประเภทรูปแบบ: ${doc.type.toUpperCase()}</span>
+          <div class="doc-meta-badge-area">
+            <span class="doc-badge ${badgeClass}">${doc.status}</span>
+            <span class="material-icons open-icon-btn">download</span>
+          </div>
+        </a>
+      `;
+    } else {
+      return `
+        <div class="document-item glass-panel">
+          <div class="doc-info">
+            <div class="doc-file-icon ${fileClass}" aria-hidden="true">
+              <span class="material-icons">${icon}</span>
+            </div>
+            <div class="doc-details">
+              <h4>${doc.name}</h4>
+              <span>ประเภทรูปแบบ: ${doc.type.toUpperCase()}</span>
+            </div>
+          </div>
+          <div class="doc-meta-badge-area">
+            <span class="doc-badge ${badgeClass}">${doc.status}</span>
           </div>
         </div>
-        <span class="doc-badge ${badgeClass}">${doc.status}</span>
-      </div>
-    `;
+      `;
+    }
   }).join('');
 }
 
@@ -719,6 +761,30 @@ function updateMemoPreview() {
     `;
   }
 
+  else if (service.templateType === 'grant_approval_memo') {
+    memoHTML = `
+      <div class="memo-title-block">บันทึกข้อความ</div>
+      <div class="memo-meta-row"><span class="memo-meta-label">ส่วนงาน:</span><span class="memo-meta-value">${data.department} คณะสังคมศาสตร์ โทร. 053-943528</span></div>
+      <div class="memo-meta-row"><span class="memo-meta-label">ที่:</span><span class="memo-meta-value">อว 8393(15.2)/ -</span></div>
+      <div class="memo-meta-row"><span class="memo-meta-label">วันที่:</span><span class="memo-meta-value">${getCurrentThaiDate()}</span></div>
+      <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">รายงานการได้รับอนุมัติทุนวิจัยและขออนุมัติจัดเตรียมสัญญาการรับทุน</span></div>
+      <div class="memo-divider"></div>
+      <div class="memo-meta-row"><span class="memo-meta-label">เรียน:</span><span class="memo-meta-value">คณบดีคณะสังคมศาสตร์</span></div>
+      <div class="memo-content">
+        ด้วยข้าพเจ้า ${data.researcherName} สังกัด ${data.department} คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่ ได้ยื่นข้อเสนอโครงการวิจัย เรื่อง “${data.projectTitle}” เพื่อเสนอขอรับทุนอุดหนุนการวิจัย และได้รับการแจ้งประกาศผลการจัดสรรทุนอุดหนุนการวิจัยอย่างเป็นทางการจาก **${data.fundingSource}** โดยได้รับการจัดสรรงบประมาณจำนวนเงินทั้งสิ้น ${Number(data.budget).toLocaleString()} บาท เรียบร้อยแล้ว
+      </div>
+      <div class="memo-content">
+        ในการนี้ เพื่อให้การดำเนินงานโครงการวิจัยดังกล่าวเป็นไปด้วยความเรียบร้อยและถูกต้องตามเกณฑ์ข้อบังคับของคณะและมหาวิทยาลัยเชียงใหม่ ข้าพเจ้าจึงใคร่ขอความอนุเคราะห์ส่งเอกสารการประกาศจัดสรรทุน เพื่อดำเนินการพิจารณาเตรียมจัดทำสัญญาการรับทุนวิจัยและขอรับมอบอำนาจลงนามในส่วนที่เกี่ยวข้องต่อไป เอกสารการอนุมัติทุนได้แนบมาพร้อมบันทึกข้อความนี้แล้ว
+      </div>
+      <div class="memo-content">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติและดำเนินการต่อไป</div>
+      <div class="memo-signatures">
+        <p style="margin-bottom: 24px;">(ลงชื่อ)...................................................</p>
+        <p>( ${data.researcherName} )</p>
+        <p>หัวหน้าโครงการวิจัย</p>
+      </div>
+    `;
+  }
+
   memoOutputArea.innerHTML = memoHTML;
 }
 
@@ -766,8 +832,9 @@ const CHAT_FLOW = {
     ]
   },
   sub_contract: {
-    text: "สำหรับกรณีนี้ จะมีกระบวนการดำเนินงานที่สอดประสานกัน 2 ขั้นตอนครับ:\n\n1. **การขอรับมอบอำนาจโครงการวิจัย** (บริการข้อ 2) ในฐานะตัวแทนลงนามสัญญาของอธิการบดีสำหรับทุนภายนอก มช.\n2. **การจัดทำสัญญาการรับทุน** (บริการข้อ 5) ตรวจสอบความถูกต้องและเสนอคณบดีหรืออธิการบดีลงนามคู่สัญญา\n\nต้องการเปิดคู่มือการดำเนินการข้อใดขึ้นมาศึกษาและทดลองกรอกตัวอย่างเอกสารครับ?",
+    text: "สำหรับกรณีนี้ จะมีกระบวนการดำเนินงานที่สอดประสานกัน 3 ขั้นตอนครับ:\n\n1. **ขั้นตอนการได้รับอนุมัติทุนวิจัย** (บริการข้อ 12) สำหรับการดำเนินการหลังประกาศผลอนุมัติทุน\n2. **การขอรับมอบอำนาจโครงการวิจัย** (บริการข้อ 2) ในฐานะตัวแทนลงนามสัญญาของอธิการบดีสำหรับทุนภายนอก มช.\n3. **การจัดทำสัญญาการรับทุน** (บริการข้อ 5) ตรวจสอบความถูกต้องและเสนอคณบดีหรืออธิการบดีลงนามคู่สัญญา\n\nต้องการเปิดคู่มือการดำเนินการข้อใดขึ้นมาศึกษาและทดลองกรอกตัวอย่างเอกสารครับ?",
     options: [
+      { text: "🎖️ คู่มือขั้นตอนการได้รับอนุมัติทุนวิจัย (ข้อ 12)", serviceId: 12 },
       { text: "🛡️ คู่มือการขอรับมอบอำนาจโครงการวิจัย (ข้อ 2)", serviceId: 2 },
       { text: "📜 คู่มือการจัดทำสัญญารับทุนวิจัย (ข้อ 5)", serviceId: 5 },
       { text: "↩️ ย้อนกลับไปขั้นตอนก่อนหน้า", nextStep: "contract_banking" }
