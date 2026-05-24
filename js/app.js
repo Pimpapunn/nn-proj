@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initTheme() {
   const themeToggleBtn = document.getElementById('themeToggleBtn');
   const themeIcon = document.getElementById('themeIcon');
-  
+
   // ตรวจสอบข้อมูลจาก localStorage หรือค่าเริ่มต้นของระบบ
   const savedTheme = localStorage.getItem('theme') || 'light';
   if (savedTheme === 'dark') {
@@ -41,13 +41,13 @@ function initTheme() {
     document.body.classList.remove('dark-mode');
     themeIcon.textContent = 'dark_mode';
   }
-  
+
   themeToggleBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
     const isDark = document.body.classList.contains('dark-mode');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     themeIcon.textContent = isDark ? 'light_mode' : 'dark_mode';
-    
+
     // เอฟเฟกต์หมุนไอคอน
     themeIcon.style.transform = 'rotate(360deg)';
     setTimeout(() => {
@@ -62,7 +62,7 @@ function initTheme() {
 function renderCategories() {
   const categoryTabs = document.getElementById('categoryTabs');
   if (!categoryTabs) return;
-  
+
   categoryTabs.innerHTML = RESEARCH_DATA.categories.map(cat => `
     <button class="tab-btn ${cat.id === currentCategory ? 'active' : ''}" 
             onclick="filterCategory('${cat.id}')" 
@@ -75,14 +75,14 @@ function renderCategories() {
 
 function filterCategory(catId) {
   currentCategory = catId;
-  
+
   // อัปเดตสถานะปุ่ม Active
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.remove('active');
   });
   const activeBtn = document.getElementById(`tab-${catId}`);
   if (activeBtn) activeBtn.classList.add('active');
-  
+
   renderServices();
 }
 
@@ -92,22 +92,22 @@ function filterCategory(catId) {
 function renderServices() {
   const servicesGrid = document.getElementById('servicesGrid');
   if (!servicesGrid) return;
-  
+
   // กรองตามหมวดหมู่และคำค้นหา
   const filteredServices = RESEARCH_DATA.services.filter(service => {
     const matchesCategory = currentCategory === 'all' || service.category === currentCategory;
-    
+
     const query = searchQuery.toLowerCase().trim();
-    const matchesSearch = query === '' || 
-      service.title.toLowerCase().includes(query) || 
-      service.summary.toLowerCase().includes(query) || 
+    const matchesSearch = query === '' ||
+      service.title.toLowerCase().includes(query) ||
+      service.summary.toLowerCase().includes(query) ||
       service.objective.toLowerCase().includes(query) ||
       service.tips.toLowerCase().includes(query) ||
       (service.documents && service.documents.some(d => d.name.toLowerCase().includes(query)));
-      
+
     return matchesCategory && matchesSearch;
   });
-  
+
   // แสดงหน้าจอว่างหากไม่พบคู่ข้อมูลที่ค้นหา
   if (filteredServices.length === 0) {
     servicesGrid.innerHTML = `
@@ -119,7 +119,7 @@ function renderServices() {
     `;
     return;
   }
-  
+
   servicesGrid.innerHTML = filteredServices.map(service => {
     const catObj = RESEARCH_DATA.categories.find(c => c.id === service.category);
     return `
@@ -152,21 +152,21 @@ function renderServices() {
 function initSearch() {
   const searchInput = document.getElementById('searchInput');
   const clearSearchBtn = document.getElementById('clearSearchBtn');
-  
+
   if (!searchInput) return;
-  
+
   searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value;
-    
+
     if (searchQuery.trim().length > 0) {
       clearSearchBtn.style.display = 'flex';
     } else {
       clearSearchBtn.style.display = 'none';
     }
-    
+
     renderServices();
   });
-  
+
   clearSearchBtn.addEventListener('click', () => {
     searchInput.value = '';
     searchQuery = '';
@@ -182,37 +182,37 @@ function initSearch() {
 function initModalEvents() {
   const modalOverlay = document.getElementById('detailModalOverlay');
   const closeModalBtn = document.getElementById('closeModalBtn');
-  
+
   const tabWorkflow = document.getElementById('btnTabWorkflow');
   const tabDocs = document.getElementById('btnTabDocs');
   const tabGenerator = document.getElementById('btnTabGenerator');
-  
+
   // ปิด Modal
   const closeModal = () => {
     modalOverlay.classList.remove('active');
     document.body.style.overflow = ''; // คืนค่าสกอร์ลหลัก
   };
-  
+
   closeModalBtn.addEventListener('click', closeModal);
   modalOverlay.addEventListener('click', (e) => {
     if (e.target === modalOverlay) closeModal();
   });
-  
+
   // ปิดด้วยแป้นพิมพ์ Esc
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && modalOverlay.classList.contains('active')) closeModal();
   });
-  
+
   // การเปลี่ยน Tab ภายใน Modal
   const switchModalTab = (tabName) => {
     activeModalTab = tabName;
-    
+
     // อัปเดตปุ่มแท็บ
     [tabWorkflow, tabDocs, tabGenerator].forEach(btn => btn.classList.remove('active'));
     document.getElementById(`panelWorkflow`).classList.remove('active');
     document.getElementById(`panelDocs`).classList.remove('active');
     document.getElementById(`panelGenerator`).classList.remove('active');
-    
+
     if (tabName === 'workflow') {
       tabWorkflow.classList.add('active');
       document.getElementById('panelWorkflow').classList.add('active');
@@ -225,7 +225,7 @@ function initModalEvents() {
       renderDocumentGenerator(); // เรนเดอร์ฟอร์มและตัวอย่างเอกสาร
     }
   };
-  
+
   tabWorkflow.addEventListener('click', () => switchModalTab('workflow'));
   tabDocs.addEventListener('click', () => switchModalTab('docs'));
   tabGenerator.addEventListener('click', () => switchModalTab('generator'));
@@ -234,20 +234,20 @@ function initModalEvents() {
 function openServiceDetail(serviceId) {
   const service = RESEARCH_DATA.services.find(s => s.id === serviceId);
   if (!service) return;
-  
+
   activeService = service;
   activeModalTab = 'workflow'; // ตั้งค่าเริ่มต้นที่หน้าขั้นตอน
-  
+
   // อัปเดตข้อมูลพอร์ทัล Modal
   document.getElementById('modalServiceTitle').textContent = service.title;
-  
+
   const catObj = RESEARCH_DATA.categories.find(c => c.id === service.category);
   document.getElementById('modalServiceCat').textContent = catObj ? catObj.title : '';
   document.getElementById('modalServiceSummary').textContent = service.summary;
   document.getElementById('modalTitleIcon').textContent = service.icon;
   document.getElementById('modalObjectiveText').textContent = service.objective;
   document.getElementById('modalTipsText').textContent = service.tips;
-  
+
   // สลับการแสดงแท็บร่างเอกสาร (แสดงเฉพาะบริการที่มีเทมเพลต)
   const tabGenerator = document.getElementById('btnTabGenerator');
   if (service.hasTemplate) {
@@ -255,25 +255,25 @@ function openServiceDetail(serviceId) {
   } else {
     tabGenerator.style.display = 'none';
   }
-  
+
   // ตั้งค่าปุ่มแท็บให้เป็นหน้าแรกเริ่มต้น
   document.getElementById('btnTabWorkflow').classList.add('active');
   document.getElementById('btnTabDocs').classList.remove('active');
   document.getElementById('btnTabGenerator').classList.remove('active');
-  
+
   document.getElementById('panelWorkflow').classList.add('active');
   document.getElementById('panelDocs').classList.remove('active');
   document.getElementById('panelGenerator').classList.remove('active');
-  
+
   // เรนเดอร์ Workflow Timeline (ผู้รับบริการ vs เจ้าหน้าที่คณะ)
   renderWorkflowTimelines(service);
-  
+
   // เรนเดอร์ข้อมูลรายการเอกสารที่เกี่ยวข้อง
   renderRequiredDocs(service);
-  
+
   // เรนเดอร์ลิงก์ระบบของมหาวิทยาลัย
   renderSystemsList(service);
-  
+
   // แสดง Modal
   const modalOverlay = document.getElementById('detailModalOverlay');
   modalOverlay.classList.add('active');
@@ -283,11 +283,11 @@ function openServiceDetail(serviceId) {
 function renderWorkflowTimelines(service) {
   const researcherTimeline = document.getElementById('researcherWorkflowTimeline');
   const staffTimeline = document.getElementById('staffWorkflowTimeline');
-  
+
   researcherTimeline.innerHTML = `
     <div class="timeline-role-header researcher">
       <span class="material-icons">person</span>
-      <span>ขั้นตอนผู้วิจัยและคณาจารย์ดำเนินการ</span>
+      <span>ขั้นตอนการดำเนินการของผู้วิจัยและคณาจารย์</span>
     </div>
     ${service.researcherSteps.map(s => `
       <div class="timeline-node">
@@ -298,7 +298,7 @@ function renderWorkflowTimelines(service) {
       </div>
     `).join('')}
   `;
-  
+
   staffTimeline.innerHTML = `
     <div class="timeline-role-header staff">
       <span class="material-icons">engineering</span>
@@ -321,16 +321,16 @@ function renderRequiredDocs(service) {
     docsListContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 24px;">ไม่มีเอกสารระบุจำเพาะสำหรับบริการนี้</p>';
     return;
   }
-  
+
   docsListContainer.innerHTML = service.documents.map(doc => {
     let icon = 'description';
     let fileClass = 'doc';
     if (doc.type === 'pdf') { icon = 'picture_as_pdf'; fileClass = 'pdf'; }
     if (doc.type === 'excel') { icon = 'grid_on'; fileClass = 'excel'; }
-    
+
     const isRequired = doc.status === 'จำเป็น' || doc.status === 'จำเป็นตอนสิ้นสุดโครงการ' || doc.status === 'จำเป็นถ้าขอค่าตีพิมพ์';
     const badgeClass = isRequired ? 'required' : 'optional';
-    
+
     return `
       <div class="document-item glass-panel">
         <div class="doc-info">
@@ -354,7 +354,7 @@ function renderSystemsList(service) {
     listContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 13px;">ไม่มีระบบเฉพาะเจาะจงใช้งานสำหรับกระบวนการนี้</p>';
     return;
   }
-  
+
   listContainer.innerHTML = service.systems.map(sys => `
     <a href="${sys.url}" target="_blank" rel="noopener noreferrer" class="system-link-card glass-panel">
       <div class="system-link-info">
@@ -374,11 +374,11 @@ function renderSystemsList(service) {
 function renderDocumentGenerator() {
   const service = activeService;
   if (!service || !service.hasTemplate) return;
-  
+
   const formContainer = document.getElementById('docGeneratorForm');
   const memoOutputArea = document.getElementById('memoOutputArea');
   const copyBtn = document.getElementById('copyDraftBtn');
-  
+
   // 1. สร้าง Form Inputs
   formContainer.innerHTML = service.templateFields.map(field => {
     if (field.type === 'textarea') {
@@ -396,7 +396,7 @@ function renderDocumentGenerator() {
       </div>
     `;
   }).join('');
-  
+
   // 2. ผูกอีเวนต์อินพุตอัปเดตแบบเรียลไทม์
   service.templateFields.forEach(field => {
     const inputElement = document.getElementById(`input-${field.name}`);
@@ -404,7 +404,7 @@ function renderDocumentGenerator() {
       inputElement.addEventListener('input', updateMemoPreview);
     }
   });
-  
+
   // 3. กำหนดพฤติกรรมการคลิกคัดลอกร่างบันทึกข้อความ
   copyBtn.onclick = () => {
     const textToCopy = memoOutputArea.innerText;
@@ -412,7 +412,7 @@ function renderDocumentGenerator() {
       const copyBtnText = document.getElementById('copyBtnText');
       copyBtn.style.background = 'var(--success)';
       copyBtnText.textContent = 'คัดลอกสำเร็จแล้ว!';
-      
+
       setTimeout(() => {
         copyBtn.style.background = '';
         copyBtnText.textContent = 'คัดลอกร่างเอกสาร';
@@ -421,7 +421,7 @@ function renderDocumentGenerator() {
       alert('ไม่สามารถคัดลอกอัตโนมัติได้ กรุณาใช้การคลุมดำคัดลอกด้วยตนเอง');
     });
   };
-  
+
   // โหลดพรีวิวเริ่มแรก
   updateMemoPreview();
 }
@@ -429,19 +429,19 @@ function renderDocumentGenerator() {
 function updateMemoPreview() {
   const service = activeService;
   if (!service || !service.hasTemplate) return;
-  
+
   // โหลดค่าต่างๆ จาก Input ฟอร์ม หรือใช้ตัวอย่าง Placeholder หากนักวิจัยยังไม่พิมพ์
   const data = {};
   service.templateFields.forEach(field => {
     const inputEl = document.getElementById(`input-${field.name}`);
     data[field.name] = (inputEl && inputEl.value.trim() !== '') ? inputEl.value.trim() : field.placeholder;
   });
-  
+
   const memoOutputArea = document.getElementById('memoOutputArea');
-  
+
   // ประมวลผลเทมเพลตจดหมาย (แบ่งตามประเภทเอกสาร)
   let memoHTML = '';
-  
+
   if (service.templateType === 'proposal_memo') {
     memoHTML = `
       <div class="memo-title-block">บันทึกข้อความ</div>
@@ -464,8 +464,8 @@ function updateMemoPreview() {
         <p>หัวหน้าโครงการวิจัย</p>
       </div>
     `;
-  } 
-  
+  }
+
   else if (service.templateType === 'power_of_attorney_memo') {
     memoHTML = `
       <div class="memo-title-block">บันทึกข้อความ</div>
@@ -489,7 +489,7 @@ function updateMemoPreview() {
       </div>
     `;
   }
-  
+
   else if (service.templateType === 'open_account_memo') {
     memoHTML = `
       <div class="memo-title-block">บันทึกข้อความ</div>
@@ -745,7 +745,7 @@ const CHAT_FLOW = {
       { text: "📈 การส่งความก้าวหน้าวิจัย หรือคำขอช่วยเหลืออื่นๆ", nextStep: "progress_support" }
     ]
   },
-  
+
   // 1A. เสนอโครงการ
   init_project: {
     text: "เยี่ยมเลยครับสำหรับการเริ่มต้นเสนอรับทุนวิจัยใหม่! งานวิจัยของคณะสังคมศาสตร์ขอแนะนำสองขั้นตอนหลักที่คุณควรทำตอนนี้ครับ:\n\n1. **การยื่นเสนอข้อเสนอโครงการ** (บริการข้อ 1) เพื่อขอความเห็นชอบของคณะกรรมการวิจัยประจำคณะ และเสนอส่งมหาวิทยาลัยเชียงใหม่\n2. **การลงบันทึกในระบบ CMU Research & e-research** (บริการข้อ 11) เพื่อให้โครงการมีเลขรหัสลงทะเบียนวิจัย มช.\n\nคุณต้องการดูรายละเอียดกระบวนการขั้นตอนในข้อใดเป็นพิเศษไหมครับ?",
@@ -755,7 +755,7 @@ const CHAT_FLOW = {
       { text: "↩️ กลับไปเลือกบริการอื่นๆ ใหม่", nextStep: "start" }
     ]
   },
-  
+
   // 1B. สัญญาและการธนาคาร
   contract_banking: {
     text: "ยินดีด้วยครับที่ข้อเสนอโครงการวิจัยได้รับการอนุมัติรับทุนภายนอก! สำหรับขั้นตอนการทำสัญญาและเปิดบัญชีเพื่อเตรียมความพร้อมรับยอดเงินโอน พี่วิจัยแบ่งเป็นคำถามสั้นๆ 2 ข้อดังนี้ คุณต้องการดูส่วนใดครับ?",
@@ -781,7 +781,7 @@ const CHAT_FLOW = {
       { text: "↩️ ย้อนกลับไปขั้นตอนก่อนหน้า", nextStep: "contract_banking" }
     ]
   },
-  
+
   // 1C. การเงินและรางวัล
   finance_claims: {
     text: "เรื่องการเงินและงบประมาณเป็นหัวใจหลักในการวิจัยเลยครับ! พี่วิจัยขอแนะนำหมวดการเบิกจ่ายออกเป็น 2 แนวทาง ดังนี้ครับ เลือกที่สอดคล้องกับคุณได้เลย:",
@@ -806,7 +806,7 @@ const CHAT_FLOW = {
       { text: "↩️ ย้อนกลับไปขั้นตอนก่อนหน้า", nextStep: "finance_claims" }
     ]
   },
-  
+
   // 1D. การติดตามโครงการและการสนับสนุน
   progress_support: {
     text: "การกำกับดูแลช่วยเหลือ และการให้สิทธิประโยชน์นักวิจัยยุทธศาสตร์ คืองานหลักของเราครับ เลือกความต้องการของคุณได้เลย:",
@@ -828,10 +828,10 @@ function goToChatStep(stepId) {
   currentChatStep = stepId;
   const step = CHAT_FLOW[stepId];
   if (!step) return;
-  
+
   // 1. เพิ่มข้อความ Bot ลงใน Chat Box
   addChatMessage('bot', step.text);
-  
+
   // 2. เรนเดอร์ตัวเลือกคำถาม
   const optionsArea = document.getElementById('chatOptionsArea');
   optionsArea.innerHTML = step.options.map((opt, idx) => `
@@ -845,7 +845,7 @@ function goToChatStep(stepId) {
 function addChatMessage(sender, text) {
   const chatBoxArea = document.getElementById('chatBoxArea');
   if (!chatBoxArea) return;
-  
+
   const avatar = sender === 'bot' ? '🕵️‍♂️' : '👤';
   const messageHTML = `
     <div class="chat-msg ${sender}">
@@ -856,9 +856,9 @@ function addChatMessage(sender, text) {
       ${sender === 'user' ? `<div class="chat-avatar-small">${avatar}</div>` : ''}
     </div>
   `;
-  
+
   chatBoxArea.insertAdjacentHTML('beforeend', messageHTML);
-  
+
   // เลื่อนหน้าต่างแชทลงด้านล่างสุดเสมอ
   chatBoxArea.scrollTop = chatBoxArea.scrollHeight;
 }
@@ -866,13 +866,13 @@ function addChatMessage(sender, text) {
 function handleChatOptionClick(optionIdx) {
   const step = CHAT_FLOW[currentChatStep];
   if (!step) return;
-  
+
   const selectedOption = step.options[optionIdx];
   if (!selectedOption) return;
-  
+
   // 1. ส่งข้อความของฝั่งผู้ใช้ลงแชท
   addChatMessage('user', selectedOption.text);
-  
+
   // 2. ดำเนินการต่อ (สลับหน้าต่างไปยังรายละเอียดบริการ หรือ ไปคำถามถัดไป)
   if (selectedOption.serviceId) {
     setTimeout(() => {
@@ -898,7 +898,7 @@ function renderStaff() {
     return;
   }
   if (!staffGrid) return;
-  
+
   staffGrid.innerHTML = RESEARCH_DATA.contacts.map(staff => `
     <article class="staff-card glass-panel">
       <div class="staff-avatar" aria-hidden="true">${staff.avatar}</div>
