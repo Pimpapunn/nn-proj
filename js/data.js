@@ -52,10 +52,14 @@ const RESEARCH_DATA = {
       ],
 
       systems: [
-        { name: 'ระบบ CMU Research', url: 'https://research.cmu.ac.th', usage: 'ลงทะเบียนและเสนอข้อเสนอโครงการวิจัยในระบบมหาวิทยาลัย' }
+        { name: 'ระบบ CMU Research', 
+          url: 'https://research.cmu.ac.th', 
+          usage: 'ลงทะเบียนและเสนอข้อเสนอโครงการวิจัยในระบบมหาวิทยาลัย',
+          image: 'researcher.1.jpg' }
       ],
 
       tips: 'การยื่นข้อเสนอโครงการวิจัยต้องทำตามแนวทางในคู่มือ 4.1 และ 4.2 อย่างเคร่งครัด โดยจะต้องจัดเตรียมเอกสารและคำนวณสัดส่วนค่าธรรมเนียมเงินสมทบสถาบันให้เป็นไปตามประกาศของมหาวิทยาลัยและคณะ',
+      
       
       hasTemplate: true,
       templateType: 'proposal_memo',
