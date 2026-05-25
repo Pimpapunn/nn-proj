@@ -27,7 +27,9 @@ const AVAILABLE_RESEARCH_FILES = [
   "6. หนังสือรับรองการปฏิบัติงานของหัวหน้าโครงการ (มช.).doc",
   "7. หนังสือรับรองการปฏิบัติงานของหัวหน้าโครงการ (คณะฯ).doc",
   "8.Certifying Letter of Project Leader to CMU.docx",
-  "9.Certifying Letter of Project Leader to Faculty.docx"
+  "9.Certifying Letter of Project Leader to Faculty.docx",
+  "แบบฟอร์ม-คำขอรับเงิน-APC-19-04-66.docx",
+  "แบบฟอร์ม-คำขอรับเงิน-ค่าตอบแทน-19-04-66.docx"
 ];
 
 // โหลดระบบเมื่อหน้าเว็บพร้อม
