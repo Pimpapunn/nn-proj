@@ -416,67 +416,7 @@ function renderRequiredDocs(service) {
     return;
   }
 
-  docsListContainer.innerHTML = service.documents.map(doc => {
-    let icon = 'description';
-    let fileClass = 'doc';
-    if (doc.type === 'pdf') { icon = 'picture_as_pdf'; fileClass = 'pdf'; }
-    if (doc.type === 'excel') { icon = 'grid_on'; fileClass = 'excel'; }
-
-    const isRequired = doc.status === 'จำเป็น' || doc.status === 'จำเป็นตอนสิ้นสุดโครงการ' || doc.status === 'จำเป็นถ้าขอค่าตีพิมพ์';
-    const badgeClass = isRequired ? 'required' : 'optional';
-
-    // ตรวจสอบว่าสามารถเชื่อมเอกสารไปยัง data_research ได้หรือไม่
-    const isLinkable = AVAILABLE_RESEARCH_FILES.includes(doc.name);
-    
-    // ถ้ามีใน local ให้ลิ้งก์ไป local ถ้าไม่มีให้ชี้ไปที่คลัง Google Drive หลัก
-    const docUrl = isLinkable 
-      ? `data_research/${encodeURIComponent(doc.name)}` 
-      : `https://drive.google.com/drive/folders/1gPhm1QSEZX1bLEFdS2dSHZqFSn7KZNUD?usp=drive_link`;
-      
-    return `
-      <a href="${docUrl}" target="_blank" rel="noopener noreferrer" class="document-item linkable glass-panel" title="คลิกเพื่อเปิดหรือดาวน์โหลดเอกสาร">
-        <div class="doc-info">
-          <div class="doc-file-icon ${fileClass}" aria-hidden="true">
-            <span class="material-icons">${icon}</span>
-          </div>
-          <div class="doc-details">
-            <h4>${doc.name}</h4>
-            <span class="doc-format-text">ประเภทรูปแบบ: ${doc.type.toUpperCase()} | <span class="click-hint-inline"><span class="material-icons" style="font-size: 11px; vertical-align: middle;">open_in_new</span> ${isLinkable ? 'เปิดไฟล์เอกสาร' : 'ค้นหาใน Google Drive'}</span></span>
-          </div>
-        </div>
-        <div class="doc-meta-badge-area">
-          <span class="doc-badge ${badgeClass}">${doc.status}</span>
-          <span class="material-icons open-icon-btn">${isLinkable ? 'download' : 'cloud_download'}</span>
-        </div>
-      </a>
-    `;
-  }).join('');
-}
-
-function renderSystemsList(service) {
-  const listContainer = document.getElementById('modalSystemsList');
-  if (!service.systems || service.systems.length === 0) {
-    listContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 13px;">ไม่มีระบบเฉพาะเจาะจงใช้งานสำหรับกระบวนการนี้</p>';
-    return;
-  }
-
-  listContainer.innerHTML = service.systems.map(sys => `
-    <a href="${sys.url}" target="_blank" rel="noopener noreferrer" class="system-link-card glass-panel">
-      <div class="system-link-info">
-        <h4>${sys.name}</h4>
-        <p>${sys.usage}</p>
-      </div>
-      <div class="system-link-go" aria-label="เปิดหน้าต่างระบบ">
-        <span class="material-icons">chevron_right</span>
-      </div>
-    </a>
-  `).join('');
-}
-
-/* ==========================================================================
-   6. SMART DOCUMENT GENERATOR (WIZARD SYSTEM)
-   ========================================================================== */
-function renderDocumentGenerator() {
+  docsListContainer.innerHTML = service.documents.map(function renderDocumentGenerator() {
   const service = activeService;
   if (!service || !service.hasTemplate) return;
 
@@ -531,27 +471,42 @@ function renderDocumentGenerator() {
   const downloadWordBtn = document.getElementById('downloadWordBtn');
   if (downloadWordBtn) {
     downloadWordBtn.onclick = () => {
-      const htmlContent = memoOutputArea.innerHTML;
+      const htmlContent = generateOfficialDocHTML(true);
       const cssStyles = `
         <style>
-          body { font-family: 'TH SarabunPSK', 'TH Sarabun New', sans-serif; font-size: 16pt; }
-          .memo-title-block { text-align: center; font-weight: bold; font-size: 20pt; margin-bottom: 20px; }
-          .memo-meta-row { margin-bottom: 8px; }
-          .memo-meta-label { font-weight: bold; margin-right: 10px; }
-          .memo-divider { border-bottom: 1px solid #000; margin: 15px 0; }
-          .memo-content { margin-bottom: 15px; text-indent: 40px; text-align: justify; }
-          .memo-signatures { margin-top: 40px; text-align: center; float: right; width: 300px; }
+          @page WordSection1 {
+            size: 210mm 297mm;
+            margin: 25mm 20mm 20mm 30mm; /* Top 2.5cm, Right 2cm, Bottom 2cm, Left 3cm (Official Thai government standard margins) */
+            mso-page-orientation: portrait;
+          }
+          div.WordSection1 {
+            page: WordSection1;
+          }
+          body {
+            font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif;
+            font-size: 16pt;
+            line-height: 1.25;
+            color: #000000;
+          }
         </style>
       `;
       
-      const documentContent = \`
+      const documentContent = `
         <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='utf-8'><title>Draft Document</title>\${cssStyles}</head><body>
-        \${htmlContent}
-        </body></html>
-      \`;
+        <head>
+          <meta charset='utf-8'>
+          <title>Draft Document</title>
+          ${cssStyles}
+        </head>
+        <body>
+          <div class="WordSection1">
+            ${htmlContent}
+          </div>
+        </body>
+        </html>
+      `;
 
-      const blob = new Blob(['\\ufeff', documentContent], {
+      const blob = new Blob(['\ufeff', documentContent], {
         type: 'application/msword'
       });
       
@@ -571,178 +526,541 @@ function renderDocumentGenerator() {
 }
 
 function updateMemoPreview() {
-  const service = activeService;
-  if (!service || !service.hasTemplate) return;
+  const memoOutputArea = document.getElementById('memoOutputArea');
+  if (memoOutputArea) {
+    memoOutputArea.innerHTML = generateOfficialDocHTML(false);
+  }
+}
 
-  // โหลดค่าต่างๆ จาก Input ฟอร์ม หรือใช้ตัวอย่าง Placeholder หากนักวิจัยยังไม่พิมพ์
+// ฟังก์ชันจัดรูปแบบบันทึกข้อความแบบเป็นทางการสำหรับเบราว์เซอร์และ Word
+function generateOfficialMemoHTML({
+  department = '',
+  phone = '',
+  docNo = 'อว 8393(15.2)/ -',
+  date = '',
+  subject = '',
+  to = '',
+  contentHtml = '',
+  signatureHtml = '',
+  isForWord = false
+}) {
+  const garudaUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Garuda_Emblem_of_Thailand.svg/200px-Garuda_Emblem_of_Thailand.svg.png';
+  
+  if (isForWord) {
+    return `
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; border: none;">
+        <tr>
+          <td style="width: 80px; vertical-align: top; border: none; padding: 0;">
+            <img src="${garudaUrl}" style="width: 60px; height: auto;" alt="ตราครุฑ">
+          </td>
+          <td style="text-align: center; vertical-align: bottom; border: none; padding: 0 80px 10px 0;">
+            <span style="font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 29pt; font-weight: bold; letter-spacing: 0.5px; color: #000000;">บันทึกข้อความ</span>
+          </td>
+        </tr>
+      </table>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px; border: none; font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 16pt; color: #000000;">
+        <tr style="border: none;">
+          <td style="width: 80px; font-weight: bold; padding: 6px 0; border: none; vertical-align: bottom;">ส่วนงาน</td>
+          <td colspan="3" style="border-bottom: 1px dotted #000000; padding: 6px 0 6px 8px; border-top: none; border-left: none; border-right: none; vertical-align: bottom;">${department} คณะสังคมศาสตร์ โทร. ${phone}</td>
+        </tr>
+        <tr style="border: none;">
+          <td style="width: 80px; font-weight: bold; padding: 6px 0; border: none; vertical-align: bottom;">ที่</td>
+          <td style="border-bottom: 1px dotted #000000; padding: 6px 0 6px 8px; border-top: none; border-left: none; border-right: none; vertical-align: bottom; width: 40%;">${docNo}</td>
+          <td style="width: 80px; font-weight: bold; padding: 6px 0; border: none; vertical-align: bottom; text-align: right; padding-right: 10px;">วันที่</td>
+          <td style="border-bottom: 1px dotted #000000; padding: 6px 0 6px 8px; border-top: none; border-left: none; border-right: none; vertical-align: bottom;">${date}</td>
+        </tr>
+        <tr style="border: none;">
+          <td style="width: 80px; font-weight: bold; padding: 6px 0; border: none; vertical-align: bottom;">เรื่อง</td>
+          <td colspan="3" style="border-bottom: 1px dotted #000000; padding: 6px 0 6px 8px; border-top: none; border-left: none; border-right: none; vertical-align: bottom;">${subject}</td>
+        </tr>
+      </table>
+      
+      <div style="border-top: 3px double #000000; margin: 16px 0; width: 100%;"></div>
+      
+      <p style="margin-top: 15px; margin-bottom: 15px; font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 16pt; color: #000000;">
+        <span style="font-weight: bold; margin-right: 10px;">เรียน</span> ${to}
+      </p>
+      
+      <div style="font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 16pt; color: #000000;">
+        ${contentHtml}
+      </div>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-top: 40px; border: none;">
+        <tr style="border: none;">
+          <td style="width: 45%; border: none;"></td>
+          <td style="width: 55%; border: none; text-align: center; font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 16pt; color: #000000; line-height: 1.6;">
+            ${signatureHtml}
+          </td>
+        </tr>
+      </table>
+    `;
+  } else {
+    return `
+      <div class="memo-container">
+        <table class="memo-header-table">
+          <tr>
+            <td style="width: 80px; vertical-align: top;">
+              <img src="${garudaUrl}" class="memo-garuda-img" alt="ตราครุฑ">
+            </td>
+            <td style="text-align: center; vertical-align: bottom; padding-right: 80px;">
+              <span class="memo-title-text">บันทึกข้อความ</span>
+            </td>
+          </tr>
+        </table>
+        
+        <table class="memo-meta-table">
+          <tr>
+            <td style="width: 80px;" class="memo-label">ส่วนงาน</td>
+            <td colspan="3" class="memo-value-dotted">${department} คณะสังคมศาสตร์ โทร. ${phone}</td>
+          </tr>
+          <tr>
+            <td style="width: 80px;" class="memo-label">ที่</td>
+            <td class="memo-value-dotted" style="width: 40%;">${docNo}</td>
+            <td style="width: 80px; text-align: right; padding-right: 15px;" class="memo-label">วันที่</td>
+            <td class="memo-value-dotted">${date}</td>
+          </tr>
+          <tr>
+            <td style="width: 80px;" class="memo-label">เรื่อง</td>
+            <td colspan="3" class="memo-value-dotted">${subject}</td>
+          </tr>
+        </table>
+        
+        <div class="memo-divider-line"></div>
+        
+        <div class="memo-recipient">
+          <span class="memo-recipient-label">เรียน</span><span>${to}</span>
+        </div>
+        
+        <div class="memo-body">
+          ${contentHtml}
+        </div>
+        
+        <table class="memo-signature-table">
+          <tr>
+            <td style="width: 45%;"></td>
+            <td style="width: 55%;">
+              <div class="memo-signature-block">
+                ${signatureHtml}
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `;
+  }
+}
+
+// ฟังก์ชันจัดรูปแบบจดหมายภายนอก (สำหรับธนาคาร) สำหรับเบราว์เซอร์และ Word
+function generateOfficialLetterHTML({
+  letterNo = '',
+  currentDate = '',
+  subject = '',
+  to = '',
+  contentHtml = '',
+  signatureHtml = '',
+  isForWord = false
+}) {
+  const garudaUrl = 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Garuda_Emblem_of_Thailand.svg/200px-Garuda_Emblem_of_Thailand.svg.png';
+  
+  if (isForWord) {
+    return `
+      <div style="text-align: center; margin-bottom: 20px;">
+        <img src="${garudaUrl}" style="width: 60px; height: auto;" alt="ตราครุฑ">
+      </div>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: none; font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 16pt; color: #000000;">
+        <tr style="border: none;">
+          <td style="width: 50%; border: none; padding: 0; vertical-align: top;">ที่ ${letterNo}</td>
+          <td style="width: 50%; border: none; padding: 0; text-align: right; vertical-align: top; line-height: 1.4;">
+            <b>คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่</b><br>
+            239 ถนนห้วยแก้ว ต.สุเทพ อ.เมือง<br>
+            จ.เชียงใหม่ 50200
+          </td>
+        </tr>
+      </table>
+      
+      <div style="text-align: center; margin-bottom: 20px; font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 16pt; color: #000000;">
+        ${currentDate}
+      </div>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; border: none; font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 16pt; color: #000000;">
+        <tr style="border: none;">
+          <td style="width: 80px; font-weight: bold; padding: 4px 0; border: none; vertical-align: top;">เรื่อง</td>
+          <td style="padding: 4px 0; border: none; vertical-align: top;">${subject}</td>
+        </tr>
+        <tr style="border: none;">
+          <td style="width: 80px; font-weight: bold; padding: 4px 0; border: none; vertical-align: top;">เรียน</td>
+          <td style="padding: 4px 0; border: none; vertical-align: top;">${to}</td>
+        </tr>
+      </table>
+      
+      <div style="font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 16pt; color: #000000; line-height: 1.6;">
+        ${contentHtml}
+      </div>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-top: 50px; border: none;">
+        <tr style="border: none;">
+          <td style="width: 45%; border: none;"></td>
+          <td style="width: 55%; border: none; text-align: center; font-family: 'TH Sarabun New', 'TH SarabunPSK', 'Sarabun', sans-serif; font-size: 16pt; color: #000000; line-height: 1.6;">
+            ${signatureHtml}
+          </td>
+        </tr>
+      </table>
+    `;
+  } else {
+    return `
+      <div class="memo-container">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="${garudaUrl}" class="memo-garuda-img" style="margin: 0 auto;" alt="ตราครุฑ">
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <tr>
+            <td style="width: 50%; vertical-align: top; font-size: 14px; color: #000000;">ที่ ${letterNo}</td>
+            <td style="width: 50%; text-align: right; vertical-align: top; font-size: 14px; color: #000000; line-height: 1.4;">
+              <span style="font-family: 'Prompt', sans-serif; font-weight: 700;">คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่</span><br>
+              239 ถนนห้วยแก้ว ต.สุเทพ อ.เมือง<br>
+              จ.เชียงใหม่ 50200
+            </td>
+          </tr>
+        </table>
+        
+        <div style="text-align: center; margin-bottom: 20px; font-size: 14px; color: #000000;">
+          ${currentDate}
+        </div>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+          <tr>
+            <td style="width: 80px; font-family: 'Prompt', sans-serif; font-weight: 700; padding: 4px 0; font-size: 14px; color: #000000; vertical-align: top;">เรื่อง</td>
+            <td style="padding: 4px 0; font-size: 14px; color: #000000; vertical-align: top;">${subject}</td>
+          </tr>
+          <tr>
+            <td style="width: 80px; font-family: 'Prompt', sans-serif; font-weight: 700; padding: 4px 0; font-size: 14px; color: #000000; vertical-align: top;">เรียน</td>
+            <td style="padding: 4px 0; font-size: 14px; color: #000000; vertical-align: top;">${to}</td>
+          </tr>
+        </table>
+        
+        <div class="memo-body" style="font-size: 14px; color: #000000;">
+          ${contentHtml}
+        </div>
+        
+        <table class="memo-signature-table">
+          <tr>
+            <td style="width: 45%;"></td>
+            <td style="width: 55%;">
+              <div class="memo-signature-block">
+                ${signatureHtml}
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    `;
+  }
+}
+
+// ดึงและคำนวณข้อมูลฟอร์ม และจัดสร้างเอกสาร HTML
+function generateOfficialDocHTML(isForWord = false) {
+  const service = activeService;
+  if (!service || !service.hasTemplate) return '';
+
   const data = {};
   service.templateFields.forEach(field => {
     const inputEl = document.getElementById(`input-${field.name}`);
     data[field.name] = (inputEl && inputEl.value.trim() !== '') ? inputEl.value.trim() : field.placeholder;
   });
 
-  const memoOutputArea = document.getElementById('memoOutputArea');
-
-  // ประมวลผลเทมเพลตจดหมาย (แบ่งตามประเภทเอกสาร)
-  let memoHTML = '';
+  let contentHtml = '';
+  let signatureHtml = '';
+  let department = data.department || 'ภาควิชาสังคมวิทยาและมนุษยวิทยา';
+  let phone = '053-943528';
+  let docNo = 'อว 8393(15.2)/ -';
+  let date = getCurrentThaiDate();
+  let subject = '';
+  let to = 'คณบดีคณะสังคมศาสตร์';
 
   if (service.templateType === 'proposal_memo') {
-    memoHTML = `
-      <div class="memo-title-block">บันทึกข้อความ</div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ส่วนงาน:</span><span class="memo-meta-value">${data.department} คณะสังคมศาสตร์ โทร. 053-943528</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ที่:</span><span class="memo-meta-value">อว 8393(15.2)/ -</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">วันที่:</span><span class="memo-meta-value">${getCurrentThaiDate()}</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">ขออนุมัติเสนอข้อเสนอโครงการวิจัยเพื่อสมัครรับทุนอุดหนุนการวิจัย</span></div>
-      <div class="memo-divider"></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรียน:</span><span class="memo-meta-value">คณบดีคณะสังคมศาสตร์</span></div>
-      <div class="memo-content">
+    phone = '053-943528';
+    subject = 'ขออนุมัติเสนอข้อเสนอโครงการวิจัยเพื่อสมัครรับทุนอุดหนุนการวิจัย';
+    to = 'คณบดีคณะสังคมศาสตร์';
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         ด้วยข้าพเจ้า ${data.researcherName} สังกัด ${data.department} คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่ มีความประสงค์จะยื่นข้อเสนอโครงการวิจัย เรื่อง “${data.projectTitle}” เพื่อเสนอขอรับทุนอุดหนุนการวิจัยประจำปีงบประมาณจาก ${data.fundingSource} งบประมาณจำนวน ${Number(data.budget).toLocaleString()} บาท (เงินสุทธิหลังตรวจสอบสัดส่วนเงินสมทบสถาบันเรียบร้อยแล้ว)
-      </div>
-      <div class="memo-content">
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         ในการนี้ ข้าพเจ้าจึงใคร่ขอความอนุเคราะห์จากคณะสังคมศาสตร์ในการพิจารณาให้ความเห็นชอบ และเสนอข้อเสนอโครงการวิจัยดังกล่าวไปยังมหาวิทยาลัยเชียงใหม่และแหล่งทุน เพื่อประกอบการขอรับการอนุมัติทุนอย่างเป็นทางการต่อไป เอกสารข้อเสนอโครงการได้แนบมาพร้อมบันทึกนี้แล้ว
-      </div>
-      <div class="memo-content">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ</div>
-      <div class="memo-signatures">
-        <p style="margin-bottom: 24px;">(ลงชื่อ)...................................................</p>
-        <p>( ${data.researcherName} )</p>
-        <p>หัวหน้าโครงการวิจัย</p>
-      </div>
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( ${data.researcherName} )</p>
+      <p>หัวหน้าโครงการวิจัย</p>
     `;
   }
-
+  
   else if (service.templateType === 'power_of_attorney_memo') {
-    memoHTML = `
-      <div class="memo-title-block">บันทึกข้อความ</div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ส่วนงาน:</span><span class="memo-meta-value">${data.department} คณะสังคมศาสตร์ โทร. 053-943528</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ที่:</span><span class="memo-meta-value">อว 8393(15.2)/ -</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">วันที่:</span><span class="memo-meta-value">${getCurrentThaiDate()}</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">ขอเสนอเรื่องมอบอำนาจลงนามในสัญญารับทุนอุดหนุนการวิจัยจากแหล่งทุนภายนอก</span></div>
-      <div class="memo-divider"></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรียน:</span><span class="memo-meta-value">อธิการบดีมหาวิทยาลัยเชียงใหม่ (ผ่านคณบดีคณะสังคมศาสตร์)</span></div>
-      <div class="memo-content">
+    phone = '053-943528';
+    subject = 'ขอเสนอเรื่องมอบอำนาจลงนามในสัญญารับทุนอุดหนุนการวิจัยจากแหล่งทุนภายนอก';
+    to = 'อธิการบดีมหาวิทยาลัยเชียงใหม่ (ผ่านคณบดีคณะสังคมศาสตร์)';
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         ตามที่โครงการวิจัย เรื่อง “${data.projectTitle}” ได้รับทุนสนับสนุนจาก ${data.fundingSource} งบประมาณรวม ${Number(data.budget).toLocaleString()} บาท มีความจำเป็นต้องทำการลงนามและทำสัญญาผูกพันทางนิติกรรมกับทางแหล่งทุนภายนอก เพื่อให้สอดรับกับระยะเวลาโครงการคือ ${data.contractPeriod}
-      </div>
-      <div class="memo-content">
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         เพื่อให้การลงนามและทำสัญญาเป็นไปด้วยความเรียบร้อย ข้าพเจ้า ${data.researcherName} ในฐานะหัวหน้าโครงการวิจัย จึงใคร่ขอเสนอขอรับมอบอำนาจจากอธิการบดีมหาวิทยาลัยเชียงใหม่ ในการลงนามสัญญาโครงการวิจัยดังกล่าวในนามตัวแทนมหาวิทยาลัย และเป็นคู่สัญญาที่ถูกต้องตามข้อกำหนด
-      </div>
-      <div class="memo-content">จึงเรียนมาเพื่อโปรดพิจารณาดำเนินการในส่วนที่เกี่ยวข้องต่อไป</div>
-      <div class="memo-signatures">
-        <p style="margin-bottom: 24px;">(ลงชื่อ)...................................................</p>
-        <p>( ${data.researcherName} )</p>
-        <p>หัวหน้าโครงการวิจัย</p>
-      </div>
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดพิจารณาดำเนินการในส่วนที่เกี่ยวข้องต่อไป</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( ${data.researcherName} )</p>
+      <p>หัวหน้าโครงการวิจัย</p>
     `;
   }
-
+  
   else if (service.templateType === 'open_account_memo') {
-    memoHTML = `
-      <div class="memo-title-block">บันทึกข้อความ</div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ส่วนงาน:</span><span class="memo-meta-value">${data.department} คณะสังคมศาสตร์ โทร. 053-943502</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ที่:</span><span class="memo-meta-value">อว 8393(15.2)/ -</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">วันที่:</span><span class="memo-meta-value">${getCurrentThaiDate()}</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">ขออนุมัติมอบอำนาจเปิดบัญชีธนาคารสำหรับโครงการวิจัยภายนอก</span></div>
-      <div class="memo-divider"></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรียน:</span><span class="memo-meta-value">อธิการบดีมหาวิทยาลัยเชียงใหม่ (ผ่านงานวิจัยคณะสังคมศาสตร์)</span></div>
-      <div class="memo-content">
+    phone = '053-943502';
+    subject = 'ขออนุมัติมอบอำนาจเปิดบัญชีธนาคารสำหรับโครงการวิจัยภายนอก';
+    to = 'อธิการบดีมหาวิทยาลัยเชียงใหม่ (ผ่านงานวิจัยคณะสังคมศาสตร์)';
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         ด้วยข้าพเจ้า ${data.researcherName} ได้รับทุนสนับสนุนการวิจัยจาก ${data.fundingSource} เพื่อดำเนินงานวิจัยโครงการ “${data.projectTitle}” ซึ่งสัญญาได้ลงนามเรียบร้อยแล้ว ในการนี้ตามระเบียบแหล่งทุนและมหาวิทยาลัยเชียงใหม่มีความจำเป็นต้องขออนุมัติเปิดบัญชีออมทรัพย์สำหรับใช้จ่ายเฉพาะเจาะจงในงานวิจัยดังกล่าว ณ ${data.bankBranch}
-      </div>
-      <div class="memo-content">
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         ข้าพเจ้าจึงขออนุมัติมอบอำนาจทำธุรกรรมสั่งจ่ายให้กับบุคคลต่อไปนี้:
-        <br><pre style="font-family: inherit; font-size: 13px; margin: 12px 0 12px 30px; line-height: 1.6; border-left: 2px solid var(--primary); padding-left: 12px;">${data.signatories}</pre>
-      </div>
-      <div class="memo-content">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติให้เปิดบัญชีเงินฝากออมทรัพย์ในชื่อโครงการดังกล่าว</div>
-      <div class="memo-signatures">
-        <p style="margin-bottom: 24px;">(ลงชื่อ)...................................................</p>
-        <p>( ${data.researcherName} )</p>
-        <p>หัวหน้าโครงการวิจัย</p>
-      </div>
+      </p>
+      <div class="memo-pre-block" style="${isForWord ? 'font-family: inherit; font-size: 13.5pt; margin: 12px 0 12px 40px; line-height: 1.6; border-left: 2px solid #000000; padding-left: 12px; white-space: pre-wrap;' : ''}">${data.signatories}</div>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-top: 15px; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติให้เปิดบัญชีเงินฝากออมทรัพย์ในชื่อโครงการดังกล่าว</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( ${data.researcherName} )</p>
+      <p>หัวหน้าโครงการวิจัย</p>
     `;
   }
-
+  
   else if (service.templateType === 'bank_letter_draft') {
-    memoHTML = `
-      <div style="text-align: right; margin-bottom: 20px;">
-        <p>ที่ ${data.letterNo || 'อว 8393(15.2)/ -'}</p>
-      </div>
-      <div style="text-align: center; margin-bottom: 30px;">
-        <p style="font-weight: 700; font-size: 16px;">คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่</p>
-        <p>ตำบลสุเทพ อำเภอเมือง จังหวัดเชียงใหม่ 50200</p>
-      </div>
-      <div style="margin-bottom: 20px;">
-        <p>วันที่ ${data.currentDate || getCurrentThaiDate()}</p>
-      </div>
-      <div style="margin-bottom: 24px;">
-        <p style="font-weight: 700;">เรื่อง ขอความอนุเคราะห์เปิดบัญชีเงินฝากออมทรัพย์โครงการวิจัย</p>
-        <p>เรียน ผู้จัดการธนาคารไทยพาณิชย์ จำกัด (มหาชน) สาขามหาวิทยาลัยเชียงใหม่</p>
-      </div>
-      <div class="memo-content">
+    const customLetterNo = data.letterNo || 'อว 8393(15.2)/ -';
+    const customLetterDate = data.currentDate || getCurrentThaiDate();
+    const customSubject = 'ขอความอนุเคราะห์เปิดบัญชีเงินฝากออมทรัพย์โครงการวิจัย';
+    const customTo = 'ผู้จัดการธนาคารไทยพาณิชย์ จำกัด (มหาชน) สาขามหาวิทยาลัยเชียงใหม่';
+    
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         ด้วย คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่ ได้อนุมัติและรับสัญญารับทุนสนับสนุนการวิจัย โครงการ “${data.projectTitle}” ของ ${data.researcherName} หัวหน้าโครงการวิจัย เพื่อประโยชน์ในการโอนจ่าย จัดเก็บ ตรวจสอบทางการบัญชี และเบิกจ่ายเงินงวดวิจัยตามระเบียบแหล่งทุนภายนอกอย่างถูกต้องและโปร่งใส
-      </div>
-      <div class="memo-content">
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         คณะสังคมศาสตร์ จึงใคร่ขอความอนุเคราะห์ให้ท่านดำเนินการเปิดบัญชีเงินฝากประเภทออมทรัพย์ ในนามชื่อบัญชี “${data.accountName}” โดยมีเงื่อนไขการเบิกจ่ายสั่งจ่ายเงินคือ “ลงลายมือชื่อสั่งจ่ายโดย ${data.signatoriesList}” ดังเอกสารการอนุมัติการมอบอำนาจเปิดบัญชีของทางมหาวิทยาลัยที่แนบมาด้วยนี้
-      </div>
-      <div class="memo-content">จึงเรียนมาเพื่อโปรดให้ความอนุเคราะห์ในการเปิดบัญชีดังกล่าว จักเป็นพระคุณยิ่ง</div>
-      <div class="memo-signatures" style="margin-top: 50px;">
-        <p style="margin-bottom: 24px;">ขอแสดงความนับถือ</p>
-        <p style="margin-bottom: 24px;">...................................................</p>
-        <p>( คณบดีคณะสังคมศาสตร์ )</p>
-        <p>มหาวิทยาลัยเชียงใหม่</p>
-      </div>
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดให้ความอนุเคราะห์ในการเปิดบัญชีดังกล่าว จักเป็นพระคุณยิ่ง</p>
     `;
+    
+    signatureHtml = `
+      <p style="margin-bottom: 15px;">ขอแสดงความนับถือ</p>
+      <p style="margin-bottom: 25px;">...................................................</p>
+      <p>( คณบดีคณะสังคมศาสตร์ )</p>
+      <p>มหาวิทยาลัยเชียงใหม่</p>
+    `;
+    
+    return generateOfficialLetterHTML({
+      letterNo: customLetterNo,
+      currentDate: customLetterDate,
+      subject: customSubject,
+      to: customTo,
+      contentHtml,
+      signatureHtml,
+      isForWord
+    });
   }
-
+  
   else if (service.templateType === 'contract_signing_memo') {
-    memoHTML = `
-      <div class="memo-title-block">บันทึกข้อความ</div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ส่วนงาน:</span><span class="memo-meta-value">${data.department} คณะสังคมศาสตร์ โทร. 053-943528</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ที่:</span><span class="memo-meta-value">อว 8393(15.2)/ -</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">วันที่:</span><span class="memo-meta-value">${getCurrentThaiDate()}</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">ขอเสนอลงนามสัญญาจ้างทำวิจัย / สัญญารับทุนสนับสนุนงานวิจัยภายนอก</span></div>
-      <div class="memo-divider"></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรียน:</span><span class="memo-meta-value">คณบดีคณะสังคมศาสตร์</span></div>
-      <div class="memo-content">
+    phone = '053-943528';
+    subject = 'ขอเสนอลงนามสัญญาจ้างทำวิจัย / สัญญารับทุนสนับสนุนงานวิจัยภายนอก';
+    to = 'คณบดีคณะสังคมศาสตร์';
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         ตามที่ ข้าพเจ้า ${data.researcherName} สังกัด ${data.department} ได้ยื่นขอเสนอทุนโครงการวิจัยเรื่อง “${data.projectTitle}” และได้รับการอนุมัติทุนสนับสนุนจาก ${data.fundingSource} วงเงินงบประมาณเป็นเงินทั้งสิ้นจำนวน ${Number(data.budget).toLocaleString()} บาท สัญญาระบุให้มีคู่สัญญาฝ่ายหนึ่งเป็นมหาวิทยาลัยเชียงใหม่ โดยผู้แทนคือคณบดีคณะสังคมศาสตร์ ลงนามเป็นพยาน/ผู้แทน ร่วมกับแหล่งทุนคือ ${data.contractParties}
-      </div>
-      <div class="memo-content">
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         ในการนี้ ข้าพเจ้าจึงนำสัญญาการรับทุนตัวจริงจำนวน 3 ชุด ซึ่งได้ทำการร่วมลงนามในฐานะหัวหน้าโครงการวิจัย/พยานพิจารณาตรวจสอบความถูกต้องเสร็จสิ้นแล้ว เสนอมายังงานบริหารงานวิจัยเพื่อโปรดนำเสนอต่อคณบดีพิจารณาลงลายมือชื่อพยานหรือคู่สัญญาในสัญญารับทุนเพื่อนำส่งให้แหล่งทุนต่อไป
-      </div>
-      <div class="memo-content">จึงเรียนมาเพื่อโปรดพิจารณาลงนามในสัญญา</div>
-      <div class="memo-signatures">
-        <p style="margin-bottom: 24px;">(ลงชื่อ)...................................................</p>
-        <p>( ${data.researcherName} )</p>
-        <p>หัวหน้าโครงการวิจัย</p>
-      </div>
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดพิจารณาลงนามในสัญญา</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( ${data.researcherName} )</p>
+      <p>หัวหน้าโครงการวิจัย</p>
     `;
   }
-
+  
   else if (service.templateType === 'disbursement_memo') {
-    memoHTML = `
-      <div class="memo-title-block">บันทึกข้อความ</div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ส่วนงาน:</span><span class="memo-meta-value">${data.department} คณะสังคมศาสตร์ โทร. 053-943528</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ที่:</span><span class="memo-meta-value">อว 8393(15.2)/ -</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">วันที่:</span><span class="memo-meta-value">${getCurrentThaiDate()}</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">ขออนุมัติเบิกจ่ายเงินงวดโครงการวิจัยภายนอก</span></div>
-      <div class="memo-divider"></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรียน:</span><span class="memo-meta-value">คณบดีคณะสังคมศาสตร์</span></div>
-      <div class="memo-content">
-        ตามที่ ข้าพเจ้า ${data.researcherName} ในฐานะหัวหน้าโครงการวิจัย “${data.projectTitle}” ได้รับการจัดสรรงบประมาณจากแหล่งทุนวิจัยภายนอก ${data.fundingSource} ซึ่งปัจจุบัน แหล่งทุนได้ดำเนินการโอนเงินเข้าคลังโครงการของคณะสังคมศาสตร์เรียบร้อยแล้ว ในการนี้ ข้าพเจ้ามีความประสงค์ที่จะขออนุมัติเบิกจ่ายงบประมาณโครงการวิจัยในรอบงวดนี้ เป็น **เงินงวดที่ ${data.installmentNo}** คิดเป็นมูลค่าทุนจำนวน ${Number(data.installmentAmount).toLocaleString()} บาท
-      </div>
-      <div class="memo-content">
+    phone = '053-943528';
+    subject = 'ขออนุมัติเบิกจ่ายเงินงวดโครงการวิจัยภายนอก';
+    to = 'คณบดีคณะสังคมศาสตร์';
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ตามที่ ข้าพเจ้า ${data.researcherName} ในฐานะหัวหน้าโครงการวิจัย “${data.projectTitle}” ได้รับการจัดสรรงบประมาณจากแหล่งทุนวิจัยภายนอก ${data.fundingSource} ซึ่งปัจจุบัน แหล่งทุนได้ดำเนินการโอนเงินเข้าคลังโครงการของคณะสังคมศาสตร์เรียบร้อยแล้ว ในการนี้ ข้าพเจ้ามีความประสงค์ที่จะขออนุมัติเบิกจ่ายงบประมาณโครงการวิจัยในรอบงวดนี้ เป็น <b>เงินงวดที่ ${data.installmentNo}</b> คิดเป็นมูลค่าทุนจำนวน ${Number(data.installmentAmount).toLocaleString()} บาท
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
         โดยข้าพเจ้าได้ดำเนินการสรุปความก้าวหน้าลงระบบ CMU Research ตลอดจนจัดเตรียมใบสำคัญทางการเงินครบถ้วนแล้ว จึงขอความอนุเคราะห์ให้ทางฝ่ายการเงินการบัญชีคณะสังคมศาสตร์ดำเนินการโอนยอดเงินจำนวนดังกล่าว (สุทธิหลังหักเงินสมทบโครงการวิจัย) เข้าสู่บัญชีธนาคารวิจัยเลขที่ ${data.bankAccountNo} เพื่อใช้จ่ายในภารกิจการดำเนินโครงการต่อไป
-      </div>
-      <div class="memo-content">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติการเบิกจ่ายเงินงวดวิจัย</div>
-      <div class="memo-signatures">
-        <p style="margin-bottom: 24px;">(ลงชื่อ)...................................................</p>
-        <p>( ${data.researcherName} )</p>
-        <p>หัวหน้าโครงการวิจัย</p>
-      </div>
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติการเบิกจ่ายเงินงวดวิจัย</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( ${data.researcherName} )</p>
+      <p>หัวหน้าโครงการวิจัย</p>
+    `;
+  }
+  
+  else if (service.templateType === 'page_charge_memo') {
+    phone = '053-943528';
+    subject = 'ขออนุมัติค่าธรรมเนียมตีพิมพ์ผลงานวิจัย / ค่าตอบแทนรางวัลการตีพิมพ์ระดับนานาชาติ';
+    to = 'คณบดีคณะสังคมศาสตร์';
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ด้วยบทความวิจัยของข้าพเจ้า ${data.researcherName} สังกัด ${data.department} เรื่อง “${data.articleTitle}” ได้รับการตรวจประเมินและยอมรับให้ได้รับการตีพิมพ์เผยแพร่อย่างเป็นทางการในวารสารระดับนานาชาติ/ชาติ ชื่อ “${data.journalName}” ซึ่งวารสารดังกล่าวได้รับการจัดอันดับอยู่ในฐานข้อมูล ${data.databaseType}
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ในการนี้ ข้าพเจ้าจึงนำเอกสารหลักฐานใบตอบรับ (Acceptance Letter) ใบเสร็จรับเงินค่าตีพิมพ์ (APC) และบทความฉบับตีพิมพ์ตัวจริงยื่นความประสงค์เพื่อขออนุมัติเบิกจ่ายเงินสนับสนุนช่วยเหลือค่าธรรมเนียมการตีพิมพ์เผยแพร่บทความวิชาการ (Page Charge / APC) จากงบประมาณกองทุนวิจัยคณะสังคมศาสตร์ จำนวนทั้งสิ้น ${Number(data.amountRequested).toLocaleString()} บาท
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติให้ความช่วยเหลือดังกล่าว</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( ${data.researcherName} )</p>
+      <p>อาจารย์/นักวิจัย ผู้ขอเบิก</p>
+    `;
+  }
+  
+  else if (service.templateType === 'overhead_memo') {
+    department = 'งานบริหารงานวิจัย คณะสังคมศาสตร์';
+    phone = '053-943528';
+    subject = 'นำส่งเงินสมทบค่าอุดหนุนสถาบันกองทุนอุดหนุนการวิจัยของส่วนงานและมหาวิทยาลัย';
+    to = 'คณบดีคณะสังคมศาสตร์';
+    
+    const ucuOverhead = (data.currentInstallmentAmount * (data.overheadRate / 100)) * 0.3;
+    const facOverhead = (data.currentInstallmentAmount * (data.overheadRate / 100)) * 0.7;
+    
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ตามที่โครงการวิจัย เรื่อง “${data.projectTitle}” ภายใต้การบริหารงานของหัวหน้าโครงการ ${data.researcherName} ได้รับทุนวิจัยภายนอกจาก ${data.fundingSource} งบประมาณสุทธิสัญญารับทุนจำนวน ${Number(data.totalBudget).toLocaleString()} บาท และปัจจุบันได้มีการตั้งเบิกงวดเงินวิจัยในรอบนี้จำนวน ${Number(data.currentInstallmentAmount).toLocaleString()} บาท แล้วนั้น
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ตามระเบียบมหาวิทยาลัยเชียงใหม่ ว่าด้วยการจัดสรรค่าใช้จ่ายเพื่อการจัดการวิจัย (Overhead) ในอัตราที่สัญญาระบุคือร้อยละ ${data.overheadRate}% ฝ่ายการเงินของงานวิจัยคณะสังคมศาสตร์ ได้ประมวลผลและขออนุมัติโอนจ่ายเงินอุดหนุนเพื่อนำส่งกองทุนวิจัยในส่วนงานต่างๆ ดังนี้:
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'margin-left: 20px; margin-bottom: 8px;' : 'padding-left: 20px;'}">
+        1. เงินสมทบส่งเข้ากองทุนอุดหนุนการวิจัยมหาวิทยาลัยเชียงใหม่ (30% จากยอด Overhead) เป็นเงินจำนวน ${Number(ucuOverhead).toLocaleString()} บาท
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'margin-left: 20px; margin-bottom: 15px;' : 'padding-left: 20px;'}">
+        2. เงินสมทบส่งเข้ากองทุนพัฒนาวิจัยคณะสังคมศาสตร์ (70% จากยอด Overhead) เป็นเงินจำนวน ${Number(facOverhead).toLocaleString()} บาท
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดอนุมัติโอนย้ายงบประมาณสมทบโครงการดังกล่าวตามที่เสนอ</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( คุณณัฐพล พิพัฒนวิชัย )</p>
+      <p>เจ้าหน้าที่การเงินการบัญชีงานวิจัย</p>
+    `;
+  }
+  
+  else if (service.templateType === 'progress_report_memo') {
+    phone = '053-943528';
+    subject = 'นำส่งรายงานความก้าวหน้าโครงการวิจัย (Progress Report) เสนอส่วนกลาง';
+    to = 'ผู้อำนวยการสำนักงานบริหารงานวิจัย มช. (ผ่านคณบดีคณะสังคมศาสตร์)';
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ด้วยโครงการวิจัย เรื่อง “${data.projectTitle}” ของหัวหน้าโครงการ ${data.researcherName} ซึ่งได้รับทุนอุดหนุนการวิจัยภายนอกจาก ${data.fundingSource} บัดนี้ ได้ดำเนินการวิจัยบรรลุไปตามรอบระยะเวลาโครงการที่กำหนดไว้ในเงื่อนไขสัญญารับทุนเรียบร้อยแล้ว
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ในการนี้ ข้าพเจ้าจึงนำส่งรายงานความก้าวหน้าโครงการวิจัย (Progress Report) สำหรับ <b>รอบการรายงานงวด ${data.reportingPeriod}</b> พร้อมรายงานงบประมาณค่าใช้จ่ายและการเงินมาพร้อมบันทึกฉบับนี้จำนวน 1 ชุด เพื่อโปรดพิจารณาส่งมอบต่อยังส่วนกลางของมหาวิทยาลัยและตรวจสอบผลลัพธ์เป็นลายลักษณ์อักษรต่อไป
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดอนุมัตินำส่งรายงานความก้าวหน้า</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( ${data.researcherName} )</p>
+      <p>หัวหน้าโครงการวิจัย</p>
+    `;
+  }
+  
+  else if (service.templateType === 'proactive_support_memo') {
+    department = data.affiliation || 'นักวิจัยเชิงรุก คณะสังคมศาสตร์';
+    phone = '053-943528';
+    subject = 'ขอเสนอขอยืมพื้นที่ทำงาน สิ่งอำนวยความสะดวกในการจัดทำยุทธศาสตร์วิจัย';
+    to = 'คณบดีคณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่';
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ด้วยข้าพเจ้า ${data.researcherName} สังกัด ${data.affiliation} เป็นนักวิจัยยุทธศาสตร์เชิงรุกที่มีความประสงค์จะดำเนินกิจกรรมขยายขอบเขตการทำโครงการวิจัยในเรื่องหลักคือ “${data.researchArea}” เพื่อสนับสนุนเป้าหมายยุทธศาสตร์ความเป็นเลิศทางการวิจัยของคณะสังคมศาสตร์
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ในการนี้ ข้าพเจ้าจึงขอยื่นความจำนงในการขอรับการสนับสนุนบริการตามรายละเอียดดังต่อไปนี้:
+      </p>
+      <div class="memo-pre-block" style="${isForWord ? 'font-family: inherit; font-size: 13.5pt; margin: 12px 0 12px 40px; line-height: 1.6; border-left: 2px solid #000000; padding-left: 12px; white-space: pre-wrap;' : ''}">${data.supportRequired}</div>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-top: 15px; margin-bottom: 15px;' : ''}">หวังเป็นอย่างยิ่งว่าจะได้รับการจัดสรรเพื่อความคล่องตัวในการปฏิบัติงานวิจัยเชิงรุกร่วมกับคณะสังคมศาสตร์</p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดพิจารณาความอนุเคราะห์และอนุมัติ</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( ${data.researcherName} )</p>
+      <p>นักวิจัยยุทธศาสตร์เชิงรุก คณะสังคมศาสตร์</p>
+    `;
+  }
+  
+  else if (service.templateType === 'db_update_memo') {
+    phone = '053-943528';
+    subject = 'ขอยื่นเอกสารประกอบการขึ้นทะเบียนและบันทึกปรับปรุงข้อมูลในฐานข้อมูลวิจัย';
+    to = 'เจ้าหน้าที่ผู้ดูแลระบบฐานข้อมูลวิจัยคณะสังคมศาสตร์ มช.';
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ด้วย โครงการวิจัย เรื่อง “${data.projectTitle}” ของหัวหน้าโครงการ ${data.researcherName} ได้รับสัญญารับทุนสนับสนุนการดำเนินโครงการเสร็จสิ้นสมบูรณ์เป็นเงินงบประมาณรวมจำนวน ${Number(data.budget).toLocaleString()} บาท ในการนี้ ข้าพเจ้าจึงนำส่งเอกสารสัญญาเพื่อขึ้นทะเบียนและบันทึกประวัติการวิจัยให้เป็นปัจจุบัน
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        จุดประสงค์ขอยื่นปรับปรุงฐานข้อมูล: **${data.updateStatus}** เพื่อใช้รายงานสถิติเป็นค่าน้ำหนักผลงานและประวัติกิจกรรมวิชาการประจำปีของบุคลากรในคณะสังคมศาสตร์
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดดำเนินการบันทึกข้อมูลปรับปรุงฐานข้อมูลวิจัย</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( ${data.researcherName} )</p>
+      <p>หัวหน้าโครงการวิจัย</p>
+    `;
+  }
+  
+  else if (service.templateType === 'grant_approval_memo') {
+    phone = '053-943528';
+    subject = 'รายงานการได้รับอนุมัติทุนวิจัยและขออนุมัติจัดเตรียมสัญญาการรับทุน';
+    to = 'คณบดีคณะสังคมศาสตร์';
+    contentHtml = `
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ด้วยข้าพเจ้า ${data.researcherName} สังกัด ${data.department} คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่ ได้ยื่นข้อเสนอโครงการวิจัย เรื่อง “${data.projectTitle}” เพื่อเสนอขอรับทุนอุดหนุนการวิจัย และได้รับการแจ้งประกาศผลการจัดสรรทุนอุดหนุนการวิจัยอย่างเป็นทางการจาก <b>${data.fundingSource}</b> โดยได้รับการจัดสรรงบประมาณจำนวนเงินทั้งสิ้น ${Number(data.budget).toLocaleString()} บาท เรียบร้อยแล้ว
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">
+        ในการนี้ เพื่อให้การดำเนินงานโครงการวิจัยดังกล่าวเป็นไปด้วยความเรียบร้อยและถูกต้องตามเกณฑ์ข้อบังคับของคณะและมหาวิทยาลัยเชียงใหม่ ข้าพเจ้าจึงใคร่ขอความอนุเคราะห์ส่งเอกสารการประกาศจัดสรรทุน เพื่อดำเนินการพิจารณาเตรียมจัดทำสัญญาการรับทุนวิจัยและขอรับมอบอำนาจลงนามในส่วนที่เกี่ยวข้องต่อไป เอกสารการอนุมัติทุนได้แนบมาพร้อมบันทึกข้อความนี้แล้ว
+      </p>
+      <p class="memo-body-content" style="${isForWord ? 'text-indent: 2.5em; text-align: justify; margin-bottom: 15px;' : ''}">จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติและดำเนินการต่อไป</p>
+    `;
+    signatureHtml = `
+      <p style="margin-bottom: 25px;">(ลงชื่อ)...................................................</p>
+      <p>( ${data.researcherName} )</p>
+      <p>หัวหน้าโครงการวิจัย</p>
     `;
   }
 
-  else if (service.templateType === 'page_charge_memo') {
-    memoHTML = `
-      <div class="memo-title-block">บันทึกข้อความ</div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ส่วนงาน:</span><span class="memo-meta-value">${data.department} คณะสังคมศาสตร์ โทร. 053-943528</span></div>
+  return generateOfficialMemoHTML({
+    department,
+    phone,
+    docNo,
+    date,
+    subject,
+    to,
+    contentHtml,
+    signatureHtml,
+    isForWord
+  });
+}ment} คณะสังคมศาสตร์ โทร. 053-943528</span></div>
       <div class="memo-meta-row"><span class="memo-meta-label">ที่:</span><span class="memo-meta-value">อว 8393(15.2)/ -</span></div>
       <div class="memo-meta-row"><span class="memo-meta-label">วันที่:</span><span class="memo-meta-value">${getCurrentThaiDate()}</span></div>
       <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">ขออนุมัติค่าธรรมเนียมตีพิมพ์ผลงานวิจัย / ค่าตอบแทนรางวัลการตีพิมพ์ระดับนานาชาติ</span></div>
