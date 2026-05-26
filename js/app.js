@@ -72,6 +72,50 @@ function initTheme() {
       themeIcon.style.transform = '';
     }, 300);
   });
+  // แสดงแอนิเมชันเปิดแชทเมื่อโหลดเสร็จ
+  setTimeout(() => {
+    document.getElementById('chatbotWrapper').style.display = 'flex';
+  }, 1000);
+}
+
+/* ==========================================================================
+   LIGHTBOX LOGIC
+   ========================================================================== */
+function openLightbox(imgSrc, title) {
+  const overlay = document.getElementById('lightboxOverlay');
+  const imgElement = document.getElementById('lightboxImg');
+  const titleElement = document.getElementById('lightboxTitle');
+
+  if (!overlay || !imgElement) return;
+
+  imgElement.src = imgSrc;
+  titleElement.textContent = title || 'Image Preview';
+  
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden'; // Lock scroll for body
+
+  // Setup close events
+  const closeBtn = document.getElementById('closeLightboxBtn');
+  const closeModal = () => {
+    overlay.classList.remove('active');
+    // only restore scroll if the main detail modal is not active
+    if (!document.getElementById('detailModalOverlay').classList.contains('active')) {
+      document.body.style.overflow = '';
+    }
+  };
+
+  closeBtn.onclick = closeModal;
+  overlay.onclick = (e) => {
+    if (e.target === overlay) closeModal();
+  };
+  
+  // Close with Esc
+  document.addEventListener('keydown', function escListener(e) {
+    if (e.key === 'Escape' && overlay.classList.contains('active')) {
+      closeModal();
+      document.removeEventListener('keydown', escListener);
+    }
+  });
 }
 
 /* ==========================================================================
@@ -331,6 +375,38 @@ function renderWorkflowTimelines(service) {
       </div>
     `).join('')}
   `;
+
+  // Render Workflow Diagrams if they exist
+  const diagramsContainer = document.getElementById('workflowDiagramsContainer');
+  if (service.images && service.images.length > 0) {
+    diagramsContainer.innerHTML = `
+      <div class="workflow-diagrams-section">
+        <div class="modal-section-title" style="margin-top: 40px; margin-bottom: 20px;">
+          <span class="material-icons">photo_library</span>
+          <h3>แผนผังและรูปภาพประกอบขั้นตอน</h3>
+        </div>
+        <div class="diagrams-grid">
+          ${service.images.map(img => `
+            <div class="diagram-card glass-panel" onclick="openLightbox('${img.url}', '${img.title}')">
+              <div class="diagram-img-wrap">
+                <img src="${img.url}" alt="${img.title}" loading="lazy">
+                <div class="diagram-overlay">
+                  <span class="material-icons">zoom_in</span>
+                  <span>คลิกเพื่อขยาย</span>
+                </div>
+              </div>
+              <div class="diagram-info">
+                <h4>${img.title}</h4>
+                <p>${img.description}</p>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  } else {
+    diagramsContainer.innerHTML = '';
+  }
 }
 
 function renderRequiredDocs(service) {
@@ -352,43 +428,28 @@ function renderRequiredDocs(service) {
     // ตรวจสอบว่าสามารถเชื่อมเอกสารไปยัง data_research ได้หรือไม่
     const isLinkable = AVAILABLE_RESEARCH_FILES.includes(doc.name);
     
-    if (isLinkable) {
-      const docUrl = `data_research/${encodeURIComponent(doc.name)}`;
-      return `
-        <a href="${docUrl}" target="_blank" class="document-item linkable glass-panel" title="คลิกเพื่อเปิดหรือดาวน์โหลดเอกสาร">
-          <div class="doc-info">
-            <div class="doc-file-icon ${fileClass}" aria-hidden="true">
-              <span class="material-icons">${icon}</span>
-            </div>
-            <div class="doc-details">
-              <h4>${doc.name}</h4>
-              <span class="doc-format-text">ประเภทรูปแบบ: ${doc.type.toUpperCase()} | <span class="click-hint-inline"><span class="material-icons" style="font-size: 11px; vertical-align: middle;">open_in_new</span> คลิกเพื่อเปิดเอกสาร</span></span>
-            </div>
+    // ถ้ามีใน local ให้ลิ้งก์ไป local ถ้าไม่มีให้ชี้ไปที่คลัง Google Drive หลัก
+    const docUrl = isLinkable 
+      ? `data_research/${encodeURIComponent(doc.name)}` 
+      : `https://drive.google.com/drive/folders/1gPhm1QSEZX1bLEFdS2dSHZqFSn7KZNUD?usp=drive_link`;
+      
+    return `
+      <a href="${docUrl}" target="_blank" rel="noopener noreferrer" class="document-item linkable glass-panel" title="คลิกเพื่อเปิดหรือดาวน์โหลดเอกสาร">
+        <div class="doc-info">
+          <div class="doc-file-icon ${fileClass}" aria-hidden="true">
+            <span class="material-icons">${icon}</span>
           </div>
-          <div class="doc-meta-badge-area">
-            <span class="doc-badge ${badgeClass}">${doc.status}</span>
-            <span class="material-icons open-icon-btn">download</span>
-          </div>
-        </a>
-      `;
-    } else {
-      return `
-        <div class="document-item glass-panel">
-          <div class="doc-info">
-            <div class="doc-file-icon ${fileClass}" aria-hidden="true">
-              <span class="material-icons">${icon}</span>
-            </div>
-            <div class="doc-details">
-              <h4>${doc.name}</h4>
-              <span>ประเภทรูปแบบ: ${doc.type.toUpperCase()}</span>
-            </div>
-          </div>
-          <div class="doc-meta-badge-area">
-            <span class="doc-badge ${badgeClass}">${doc.status}</span>
+          <div class="doc-details">
+            <h4>${doc.name}</h4>
+            <span class="doc-format-text">ประเภทรูปแบบ: ${doc.type.toUpperCase()} | <span class="click-hint-inline"><span class="material-icons" style="font-size: 11px; vertical-align: middle;">open_in_new</span> ${isLinkable ? 'เปิดไฟล์เอกสาร' : 'ค้นหาใน Google Drive'}</span></span>
           </div>
         </div>
-      `;
-    }
+        <div class="doc-meta-badge-area">
+          <span class="doc-badge ${badgeClass}">${doc.status}</span>
+          <span class="material-icons open-icon-btn">${isLinkable ? 'download' : 'cloud_download'}</span>
+        </div>
+      </a>
+    `;
   }).join('');
 }
 
@@ -459,12 +520,51 @@ function renderDocumentGenerator() {
 
       setTimeout(() => {
         copyBtn.style.background = '';
-        copyBtnText.textContent = 'คัดลอกร่างเอกสาร';
+        copyBtnText.textContent = 'คัดลอกร่าง';
       }, 2000);
     }).catch(err => {
       alert('ไม่สามารถคัดลอกอัตโนมัติได้ กรุณาใช้การคลุมดำคัดลอกด้วยตนเอง');
     });
   };
+
+  // 4. กำหนดพฤติกรรมการคลิกดาวน์โหลดเป็น Word
+  const downloadWordBtn = document.getElementById('downloadWordBtn');
+  if (downloadWordBtn) {
+    downloadWordBtn.onclick = () => {
+      const htmlContent = memoOutputArea.innerHTML;
+      const cssStyles = `
+        <style>
+          body { font-family: 'TH SarabunPSK', 'TH Sarabun New', sans-serif; font-size: 16pt; }
+          .memo-title-block { text-align: center; font-weight: bold; font-size: 20pt; margin-bottom: 20px; }
+          .memo-meta-row { margin-bottom: 8px; }
+          .memo-meta-label { font-weight: bold; margin-right: 10px; }
+          .memo-divider { border-bottom: 1px solid #000; margin: 15px 0; }
+          .memo-content { margin-bottom: 15px; text-indent: 40px; text-align: justify; }
+          .memo-signatures { margin-top: 40px; text-align: center; float: right; width: 300px; }
+        </style>
+      `;
+      
+      const documentContent = \`
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>Draft Document</title>\${cssStyles}</head><body>
+        \${htmlContent}
+        </body></html>
+      \`;
+
+      const blob = new Blob(['\\ufeff', documentContent], {
+        type: 'application/msword'
+      });
+      
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'draft_document.doc';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
+  }
 
   // โหลดพรีวิวเริ่มแรก
   updateMemoPreview();

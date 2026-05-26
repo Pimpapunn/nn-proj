@@ -350,10 +350,16 @@
                 <div class="generator-preview-panel glass-panel">
                   <div class="preview-header">
                     <span class="preview-title">ตัวอย่างร่างบันทึกข้อความ (Draft Preview)</span>
-                    <button class="copy-draft-btn" id="copyDraftBtn">
-                      <span class="material-icons">content_copy</span>
-                      <span id="copyBtnText">คัดลอกร่างเอกสาร</span>
-                    </button>
+                    <div style="display: flex; gap: 8px;">
+                      <button class="copy-draft-btn" id="copyDraftBtn">
+                        <span class="material-icons">content_copy</span>
+                        <span id="copyBtnText">คัดลอกร่าง</span>
+                      </button>
+                      <button class="copy-draft-btn" id="downloadWordBtn" style="background: var(--primary);">
+                        <span class="material-icons">file_download</span>
+                        <span id="downloadBtnText">โหลด Word</span>
+                      </button>
+                    </div>
                   </div>
                   <div class="preview-scroller">
                     <div class="memo-document" id="memoOutputArea">
@@ -402,6 +408,21 @@
         </div>
       </div>
       
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       IMAGE LIGHTBOX OVERLAY
+       ========================================================================== -->
+  <div class="lightbox-overlay" id="lightboxOverlay" role="dialog" aria-modal="true" aria-label="Image Preview">
+    <div class="lightbox-toolbar">
+      <h3 id="lightboxTitle">Image Title</h3>
+      <button class="close-lightbox-btn" id="closeLightboxBtn" aria-label="ปิดรูปภาพ">
+        <span class="material-icons">close</span>
+      </button>
+    </div>
+    <div class="lightbox-content">
+      <img src="" alt="" id="lightboxImg">
     </div>
   </div>
 

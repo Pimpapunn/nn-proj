@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMU SSO - ระบบหลังบ้าน งานบริหารงานวิจัย</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&family=Sarabun:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cmu-purple: #62259E;
+      --cmu-purple-dark: #4b1a7d;
+      --bg-color: #f4f5f7;
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --text-muted: #666666;
+      --border-color: #e0e0e0;
+      --primary-blue: #007bff;
+      --font-heading: 'Prompt', sans-serif;
+      --font-body: 'Sarabun', sans-serif;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* -----------------------------
+       LOGIN PAGE STYLES
+       ----------------------------- */
+    #loginPage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-grow: 1;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 420px;
+      padding: 40px;
+      text-align: center;
+      border-top: 6px solid var(--cmu-purple);
+    }
+
+    .cmu-logo {
+      width: 80px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    .login-container h2 {
+      font-family: var(--font-heading);
+      color: var(--cmu-purple);
+      margin-bottom: 8px;
+    }
+
+    .login-container p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: var(--font-body);
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--cmu-purple);
+      box-shadow: 0 0 0 3px rgba(98, 37, 158, 0.1);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--cmu-purple);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-heading);
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      margin-top: 10px;
+    }
+
+    .login-btn:hover {
+      background-color: var(--cmu-purple-dark);
+    }
+    
+    .back-btn {
+      display: block;
+      margin-top: 20px;
+      color: var(--primary-blue);
+      text-decoration: none;
+      font-size: 14px;
+    }
+    
+    .back-btn:hover {
+      text-decoration: underline;
+    }
+
+    /* -----------------------------
+       DASHBOARD STYLES
+       ----------------------------- */
+    #dashboardPage {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .dashboard-header {
+      background-color: var(--cmu-purple);
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .dashboard-header h1 {
+      font-family: var(--font-heading);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .user-profile span {
+      font-size: 14px;
+    }
+
+    .logout-btn {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: background 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .dashboard-content {
+      padding: 30px;
+      flex-grow: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      border-left: 4px solid var(--cmu-purple);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-info h3 {
+      font-family: var(--font-heading);
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 5px;
+    }
+
+    .stat-info p {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    
+    .stat-icon {
+      color: var(--cmu-purple);
+      opacity: 0.5;
+    }
+
+    .data-table-container {
+      background: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      padding: 20px;
+    }
+    
+    .data-table-container h2 {
+      font-family: var(--font-heading);
+      margin-bottom: 20px;
+      font-size: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      font-family: var(--font-heading);
+      font-weight: 500;
+      color: var(--text-muted);
+      background-color: #fafafa;
+    }
+    
+    tbody tr:hover {
+      background-color: #f9f9f9;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .status-pending { background: #fff3cd; color: #856404; }
+    .status-approved { background: #d4edda; color: #155724; }
+    .status-processing { background: #cce5ff; color: #004085; }
+    
+    .action-btn {
+      background: none;
+      border: none;
+      color: var(--primary-blue);
+      cursor: pointer;
+      font-size: 13px;
+    }
+    
+    .action-btn:hover {
+      text-decoration: underline;
+    }
+    
+    .error-msg {
+      color: #dc3545;
+      font-size: 13px;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN PAGE -->
+  <div id="loginPage">
+    <div class="login-container">
+      <img src="https://www.cmu.ac.th/images/cmu_logo.png" alt="CMU Logo" class="cmu-logo">
+      <h2>CMU SSO Login</h2>
+      <p>ระบบจัดการหลังบ้าน งานบริหารงานวิจัย</p>
+      
+      <div class="error-msg" id="errorMsg">กรุณากรอกข้อมูล CMU Account ให้ครบถ้วน</div>
+      
+      <div class="form-group">
+        <label for="cmuAccount">CMU Account (@cmu.ac.th)</label>
+        <input type="text" id="cmuAccount" placeholder="firstname.lastname@cmu.ac.th" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="รหัสผ่าน" autocomplete="current-password">
+      </div>
+      <button class="login-btn" onclick="handleLogin()">เข้าสู่ระบบ</button>
+      
+      <a href="index.html" class="back-btn">&larr; กลับสู่หน้าหลักการให้บริการ</a>
+    </div>
+  </div>
+
+  <!-- DASHBOARD PAGE -->
+  <div id="dashboardPage">
+    <header class="dashboard-header">
+      <h1><span class="material-icons">science</span> ระบบจัดการหลังบ้าน</h1>
+      <div class="user-profile">
+        <span id="userNameDisplay">Admin User</span>
+        <button class="logout-btn" onclick="handleLogout()">ออกจากระบบ</button>
+      </div>
+    </header>
+    
+    <main class="dashboard-content">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-info">
+            <h3>คำขอที่รอการตรวจสอบ</h3>
+            <p>12</p>
+          </div>
+          <span class="material-icons stat-icon" style="font-size: 40px;">pending_actions</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-info">
+            <h3>โครงการวิจัยทั้งหมด</h3>
+            <p>145</p>
+          </div>
+          <span class="material-icons stat-icon" style="font-size: 40px;">library_books</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-info">
+            <h3>บัญชีวิจัยที่รออนุมัติ</h3>
+            <p>3</p>
+          </div>
+          <span class="material-icons stat-icon" style="font-size: 40px;">account_balance</span>
+        </div>
+      </div>
+
+      <div class="data-table-container">
+        <h2>รายการคำขอล่าสุด</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>รหัสคำขอ</th>
+              <th>หัวหน้าโครงการ</th>
+              <th>รายการ</th>
+              <th>วันที่ส่ง</th>
+              <th>สถานะ</th>
+              <th>จัดการ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>REQ-2026-001</td>
+              <td>ผศ.ดร. นันทา พานิช</td>
+              <td>บันทึกฐานข้อมูลโครงการวิจัยใหม่</td>
+              <td>26 พ.ค. 2026</td>
+              <td><span class="status-badge status-pending">รอตรวจสอบ</span></td>
+              <td><button class="action-btn">ดูรายละเอียด</button></td>
+            </tr>
+            <tr>
+              <td>REQ-2026-002</td>
+              <td>รศ.ดร. วสันต์ ปัญญาแก้ว</td>
+              <td>ขอรับมอบอำนาจโครงการวิจัย</td>
+              <td>25 พ.ค. 2026</td>
+              <td><span class="status-badge status-processing">กำลังดำเนินการ</span></td>
+              <td><button class="action-btn">ดูรายละเอียด</button></td>
+            </tr>
+            <tr>
+              <td>REQ-2026-003</td>
+              <td>ดร. รักดี มีปัญญา</td>
+              <td>ขอเปิดบัญชีโครงการวิจัย</td>
+              <td>24 พ.ค. 2026</td>
+              <td><span class="status-badge status-approved">อนุมัติแล้ว</span></td>
+              <td><button class="action-btn">ดูรายละเอียด</button></td>
+            </tr>
+            <tr>
+              <td>REQ-2026-004</td>
+              <td>ศ.ดร. สุขใจ รักวิจัย</td>
+              <td>เสนอข้อเสนอโครงการ (สกสว.)</td>
+              <td>22 พ.ค. 2026</td>
+              <td><span class="status-badge status-approved">อนุมัติแล้ว</span></td>
+              <td><button class="action-btn">ดูรายละเอียด</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ตรวจสอบสถานะการล็อกอินเมื่อโหลดหน้า
+    document.addEventListener('DOMContentLoaded', () => {
+      const isLoggedIn = sessionStorage.getItem('cmu_admin_logged_in');
+      const accountName = sessionStorage.getItem('cmu_admin_account');
+      
+      if (isLoggedIn === 'true') {
+        showDashboard(accountName);
+      }
+    });
+
+    function handleLogin() {
+      const accountInput = document.getElementById('cmuAccount').value.trim();
+      const passwordInput = document.getElementById('password').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+      
+      if (accountInput === '' || passwordInput === '') {
+        errorMsg.style.display = 'block';
+        return;
+      }
+      
+      errorMsg.style.display = 'none';
+      
+      // จำลองการเข้าระบบสำเร็จ (รับทุกค่า)
+      sessionStorage.setItem('cmu_admin_logged_in', 'true');
+      sessionStorage.setItem('cmu_admin_account', accountInput);
+      
+      showDashboard(accountInput);
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem('cmu_admin_logged_in');
+      sessionStorage.removeItem('cmu_admin_account');
+      
+      // กลับมาหน้า Login
+      document.getElementById('cmuAccount').value = '';
+      document.getElementById('password').value = '';
+      document.getElementById('dashboardPage').style.display = 'none';
+      document.getElementById('loginPage').style.display = 'flex';
+    }
+
+    function showDashboard(accountName) {
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('dashboardPage').style.display = 'flex';
+      
+      // แสดงชื่อผู้ใช้ (ตัดส่วน @cmu.ac.th ออกถ้ามี)
+      const displayName = accountName.split('@')[0];
+      document.getElementById('userNameDisplay').textContent = displayName;
+    }
+  </script>
+</body>
+</html>
