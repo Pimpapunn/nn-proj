@@ -653,7 +653,7 @@ function updateMemoPreview() {
       <div class="memo-meta-row"><span class="memo-meta-label">ส่วนงาน:</span><span class="memo-meta-value">${data.department} คณะสังคมศาสตร์ โทร. 053-943528</span></div>
       <div class="memo-meta-row"><span class="memo-meta-label">ที่:</span><span class="memo-meta-value">อว 8393(15.2)/ -</span></div>
       <div class="memo-meta-row"><span class="memo-meta-label">วันที่:</span><span class="memo-meta-value">${getCurrentThaiDate()}</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">ขออนุมัติค่าธรรมเนียมตีพิมพ์ผลงานวิจัย / ค่าตอบแทนรางวัลการตีพิมพ์ระดับนานาชาติ</span></div>
+      <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">ขออนุมัติค่าธรรมเนียมตีพิมพ์ผลงานวิชาการ / ค่าตอบแทนผลงานวิชาการที่ตีพิมพ์ในฐานข้อมูลระดับนานาชาติ</span></div>
       <div class="memo-divider"></div>
       <div class="memo-meta-row"><span class="memo-meta-label">เรียน:</span><span class="memo-meta-value">คณบดีคณะสังคมศาสตร์</span></div>
       <div class="memo-content">
