@@ -47,7 +47,7 @@
         </div>
       </div>
       
-      <div class="nav-actions">
+      <!-- <div class="nav-actions">
         <a href="https://research.mis.cmu.ac.th/" target="_blank" rel="noopener noreferrer" class="cmu-btn" id="cmuResearchBtn">
           <span class="material-icons">open_in_new</span>
           <span>ระบบ CMU Research</span>
@@ -59,7 +59,7 @@
         <button class="theme-toggle" id="themeToggleBtn" aria-label="สลับโหมดหน้าจอ (มืด/สว่าง)" title="สลับโหมดหน้าจอ (มืด/สว่าง)">
           <span class="material-icons" id="themeIcon">dark_mode</span>
         </button>
-      </div>
+      </div> -->
     </div>
   </header>
 
@@ -78,7 +78,7 @@
         <h2>การดำเนินงานและกระบวนการขั้นตอน
           <span class="accent-text">การบริหารงานวิจัยฯ</span></h2>
         <p class="hero-subtitle">
-          อธิบายและแนะนำขั้นตอนการดำเนินการอย่างเป็นระบบ ครอบคลุมขั้นตอนการยื่นเสนอโครงการ สัญญารับทุน ขออนุมัติเปิดบัญชี เบิกจ่ายเงินงวด และการสนับสนุนนักวิจัยยุทธศาสตร์เชิงรุก คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่
+          อธิบายและแนะนำขั้นตอนการดำเนินการอย่างเป็นระบบ ครอบคลุมขั้นตอนการยื่นเสนอโครงการ สัญญารับทุน ขออนุมัติเปิดบัญชี เบิกจ่ายเงินงวด และการสนับสนุนการดำเนินงานด้านวิจัย คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่
         </p>
       </div>
     </section>
@@ -180,7 +180,7 @@
           </a>
 
           <!-- Google Drive Research Documents Portal Card -->
-          <a href="https://drive.google.com/drive/folders/1gPhm1QSEZX1bLEFdS2dSHZqFSn7KZNUD?usp=drive_link" 
+          <a href="https://drive.google.com/drive/folders/1z5mBL4Oxap1ggsoK1C28kwDW_JAHopWC?usp=drive_link" 
              target="_blank" rel="noopener noreferrer" 
              class="portal-card glass-panel portal-card-gdrive" id="gdrivePortalCard">
             <div class="portal-logo-box portal-logo-gdrive">
@@ -191,7 +191,7 @@
               </svg>
             </div>
             <div class="portal-info">
-              <h3>คลังเอกสารงานวิจัย <div>ข้อมูลงานวิจัย-NN</div></h3>
+              <h3>คลังเอกสารงานวิจัย <div>ข้อมูลเกี่ยวกับงานวิจัย</div></h3>
               <p>แบบฟอร์ม คู่มือ และเอกสารอ้างอิงทั้งหมดสำหรับการบริหารงานวิจัย จัดเก็บบน Google Drive พร้อมดาวน์โหลด</p>
             </div>
             <span class="material-icons portal-external-icon">open_in_new</span>
@@ -358,16 +358,10 @@
                 <div class="generator-preview-panel glass-panel">
                   <div class="preview-header">
                     <span class="preview-title">ตัวอย่างร่างบันทึกข้อความ (Draft Preview)</span>
-                    <div class="preview-actions" style="display: flex; gap: 8px;">
-                      <button class="copy-draft-btn" id="copyDraftBtn">
-                        <span class="material-icons">content_copy</span>
-                        <span id="copyBtnText">คัดลอกร่างเอกสาร</span>
-                      </button>
-                      <button class="download-word-btn" id="downloadWordBtn">
-                        <span class="material-icons">download</span>
-                        <span>ดาวน์โหลดไฟล์ Word</span>
-                      </button>
-                    </div>
+                    <button class="copy-draft-btn" id="copyDraftBtn">
+                      <span class="material-icons">content_copy</span>
+                      <span id="copyBtnText">คัดลอกร่างเอกสาร</span>
+                    </button>
                   </div>
                   <div class="preview-scroller">
                     <div class="memo-document" id="memoOutputArea">
@@ -420,8 +414,6 @@
   </div>
 
   <!-- Loading data first, then application controller -->
-  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
-  <script src="js/garuda_base64.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
 </body>
