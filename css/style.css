@@ -1669,10 +1669,13 @@ body.dark-mode .widget-tips {
 }
 
 .portal-card {
-  padding: 24px;
+  padding: 32px 24px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 20px;
+  text-align: center;
+  gap: 16px;
+  position: relative;
 }
 
 .portal-card:hover {
@@ -1694,7 +1697,7 @@ body.dark-mode .widget-tips {
 }
 
 .portal-info {
-  flex: 1;
+  /* Removed flex: 1 for column layout */
 }
 
 .portal-info h3 {
@@ -1709,6 +1712,9 @@ body.dark-mode .widget-tips {
 }
 
 .portal-external-icon {
+  position: absolute;
+  top: 24px;
+  right: 24px;
   color: var(--text-muted);
   font-size: 20px;
 }
