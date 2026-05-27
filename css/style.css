@@ -1276,6 +1276,26 @@ body.dark-mode .widget-tips {
   transform: scale(1.02);
 }
 
+.download-word-btn {
+  background: #2b579a; /* MS Word Blue */
+  color: var(--text-white);
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.download-word-btn:hover {
+  background: #1e3f72;
+  transform: scale(1.02);
+}
+
 /* Document Memo Layout inside preview */
 .preview-scroller {
   flex: 1;

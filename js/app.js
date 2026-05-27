@@ -466,6 +466,14 @@ function renderDocumentGenerator() {
     });
   };
 
+  // 4. กำหนดพฤติกรรมการคลิกดาวน์โหลดไฟล์ Word
+  const downloadBtn = document.getElementById('downloadWordBtn');
+  if (downloadBtn) {
+    downloadBtn.onclick = () => {
+      downloadWordDraft();
+    };
+  }
+
   // โหลดพรีวิวเริ่มแรก
   updateMemoPreview();
 }
@@ -788,6 +796,937 @@ function updateMemoPreview() {
   }
 
   memoOutputArea.innerHTML = memoHTML;
+}
+
+// ฟังก์ชันสำหรับแปลง Base64 ของตราครุฑเป็น ArrayBuffer เพื่อใช้กับ docx.js
+function base64ToArrayBuffer(base64) {
+  const binaryString = window.atob(base64.split(',')[1]);
+  const len = binaryString.length;
+  const bytes = new Uint8Array(len);
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binaryString.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+// ฟังก์ชันแปลงตัวเลขเป็นสายอักขระสกุลเงินพร้อมเครื่องหมายจุลภาค
+function formatNumber(num) {
+  return Number(num).toLocaleString();
+}
+
+// ฟังก์ชันหลักในการจัดหน้าและดาวน์โหลดไฟล์ Word (.docx) อิงตามรูปแบบมาตรฐานบันทึกข้อความราชการไทย
+function downloadWordDraft() {
+  const service = activeService;
+  if (!service || !service.hasTemplate) return;
+
+  // โหลดค่าต่างๆ จาก Input ฟอร์ม
+  const data = {};
+  service.templateFields.forEach(field => {
+    const inputEl = document.getElementById(`input-${field.name}`);
+    data[field.name] = (inputEl && inputEl.value.trim() !== '') ? inputEl.value.trim() : field.placeholder;
+  });
+
+  const {
+    Document,
+    Packer,
+    Paragraph,
+    TextRun,
+    Table,
+    TableRow,
+    TableCell,
+    ImageRun,
+    AlignmentType,
+    WidthType,
+    BorderStyle
+  } = window.docx;
+
+  const docChildren = [];
+  const garudaBuffer = base64ToArrayBuffer(GARUDA_BASE64);
+
+  // 1. จัดทำหัวเอกสารตามประเภท
+  if (service.templateType === 'bank_letter_draft') {
+    // หนังสือภายนอก: ตราครุฑกึ่งกลางหน้ากระดาษ
+    docChildren.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new ImageRun({
+            data: garudaBuffer,
+            transformation: {
+              width: 60,
+              height: 60,
+            },
+          }),
+        ],
+        spacing: { after: 200 },
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({ text: "คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่", bold: true, size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 60 },
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({ text: "ตำบลสุเทพ อำเภอเมือง จังหวัดเชียงใหม่ 50200", size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 240 },
+      })
+    );
+
+    // เลขที่หนังสือ และวันที่
+    docChildren.push(
+      new Paragraph({
+        tabStops: [{ type: window.docx.TabStopType.LEFT, position: 4500 }],
+        children: [
+          new TextRun({ text: "ที่ ", bold: true, size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: data.letterNo || "อว 8393(15.2)/ -", size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: `\tวันที่ `, bold: true, size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: data.currentDate || getCurrentThaiDate(), size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 240 },
+      })
+    );
+
+    // เรื่อง
+    docChildren.push(
+      new Paragraph({
+        children: [
+          new TextRun({ text: "เรื่อง  ", bold: true, size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: "ขอความอนุเคราะห์เปิดบัญชีเงินฝากออมทรัพย์โครงการวิจัย", size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 120 },
+      })
+    );
+
+    // เรียน
+    docChildren.push(
+      new Paragraph({
+        children: [
+          new TextRun({ text: "เรียน  ", bold: true, size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: "ผู้จัดการธนาคารไทยพาณิชย์ จำกัด (มหาชน) สาขามหาวิทยาลัยเชียงใหม่", size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 240 },
+      })
+    );
+
+  } else {
+    // บันทึกข้อความ (หนังสือภายใน): ตราครุฑซ้ายบน และข้อความ "บันทึกข้อความ" กึ่งกลาง
+    const headerTable = new Table({
+      width: { size: 100, type: WidthType.PERCENTAGE },
+      borders: {
+        top: { style: BorderStyle.NONE },
+        bottom: { style: BorderStyle.NONE },
+        left: { style: BorderStyle.NONE },
+        right: { style: BorderStyle.NONE },
+        insideHorizontal: { style: BorderStyle.NONE },
+        insideVertical: { style: BorderStyle.NONE },
+      },
+      rows: [
+        new TableRow({
+          children: [
+            new TableCell({
+              width: { size: 15, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  children: [
+                    new ImageRun({
+                      data: garudaBuffer,
+                      transformation: {
+                        width: 60,
+                        height: 60,
+                      },
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            new TableCell({
+              width: { size: 85, type: WidthType.PERCENTAGE },
+              children: [
+                new Paragraph({
+                  alignment: AlignmentType.CENTER,
+                  children: [
+                    new TextRun({
+                      text: "บันทึกข้อความ",
+                      bold: true,
+                      size: 58, // 29pt
+                      font: "TH Sarabun New",
+                    }),
+                  ],
+                  spacing: { before: 120 },
+                }),
+              ],
+            }),
+          ],
+        }),
+      ],
+    });
+    docChildren.push(headerTable);
+    docChildren.push(new Paragraph({ spacing: { after: 120 } }));
+
+    // ส่วนงาน
+    let deptString = "";
+    if (service.templateType === 'overhead_memo') {
+      deptString = "งานบริหารงานวิจัย คณะสังคมศาสตร์ โทร. 053-943528";
+    } else if (service.templateType === 'proactive_support_memo') {
+      deptString = `${data.affiliation} คณะสังคมศาสตร์ โทร. 053-943528`;
+    } else if (service.templateType === 'open_account_memo') {
+      deptString = `${data.department} คณะสังคมศาสตร์ โทร. 053-943502`;
+    } else {
+      deptString = `${data.department} คณะสังคมศาสตร์ โทร. 053-943528`;
+    }
+
+    docChildren.push(
+      new Paragraph({
+        children: [
+          new TextRun({ text: "ส่วนงาน  ", bold: true, size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: deptString, size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 120 },
+      })
+    );
+
+    // ที่ และ วันที่
+    docChildren.push(
+      new Paragraph({
+        tabStops: [{ type: window.docx.TabStopType.LEFT, position: 4500 }],
+        children: [
+          new TextRun({ text: "ที่  ", bold: true, size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: "อว 8393(15.2)/ -", size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: "\tวันที่  ", bold: true, size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: getCurrentThaiDate(), size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 120 },
+      })
+    );
+
+    // เรื่อง
+    let subjectString = "";
+    if (service.templateType === 'proposal_memo') {
+      subjectString = "ขออนุมัติเสนอข้อเสนอโครงการวิจัยเพื่อสมัครรับทุนอุดหนุนการวิจัย";
+    } else if (service.templateType === 'grant_approval_memo') {
+      subjectString = "รายงานการได้รับอนุมัติทุนวิจัยและขออนุมัติจัดเตรียมสัญญาการรับทุน";
+    } else if (service.templateType === 'power_of_attorney_memo') {
+      subjectString = "ขอเสนอเรื่องมอบอำนาจลงนามในสัญญารับทุนอุดหนุนการวิจัยจากแหล่งทุนภายนอก";
+    } else if (service.templateType === 'open_account_memo') {
+      subjectString = "ขออนุมัติมอบอำนาจเปิดบัญชีธนาคารสำหรับโครงการวิจัยภายนอก";
+    } else if (service.templateType === 'contract_signing_memo') {
+      subjectString = "ขอเสนอลงนามสัญญาจ้างทำวิจัย / สัญญารับทุนสนับสนุนงานวิจัยภายนอก";
+    } else if (service.templateType === 'disbursement_memo') {
+      subjectString = "ขออนุมัติเบิกจ่ายเงินงวดโครงการวิจัยภายนอก";
+    } else if (service.templateType === 'page_charge_memo') {
+      subjectString = "ขออนุมัติค่าธรรมเนียมตีพิมพ์ผลงานวิจัย / ค่าตอบแทนรางวัลการตีพิมพ์ระดับนานาชาติ";
+    } else if (service.templateType === 'overhead_memo') {
+      subjectString = "นำส่งเงินสมทบค่าอุดหนุนสถาบันกองทุนอุดหนุนการวิจัยของส่วนงานและมหาวิทยาลัย";
+    } else if (service.templateType === 'progress_report_memo') {
+      subjectString = "นำส่งรายงานความก้าวหน้าโครงการวิจัย (Progress Report) เสนอส่วนกลาง";
+    } else if (service.templateType === 'proactive_support_memo') {
+      subjectString = "ขอเสนอขอยืมพื้นที่ทำงาน สิ่งอำนวยความสะดวกในการจัดทำยุทธศาสตร์วิจัย";
+    } else if (service.templateType === 'db_update_memo') {
+      subjectString = "ขอยื่นเอกสารประกอบการขึ้นทะเบียนและบันทึกปรับปรุงข้อมูลในฐานข้อมูลวิจัย";
+    }
+
+    docChildren.push(
+      new Paragraph({
+        border: {
+          bottom: {
+            color: "000000",
+            space: 8,
+            value: BorderStyle.SINGLE,
+            size: 12,
+          }
+        },
+        children: [
+          new TextRun({ text: "เรื่อง  ", bold: true, size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: subjectString, size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 180 },
+      })
+    );
+
+    // เรียน
+    let recipientString = "คณบดีคณะสังคมศาสตร์";
+    if (service.templateType === 'power_of_attorney_memo') {
+      recipientString = "อธิการบดีมหาวิทยาลัยเชียงใหม่ (ผ่านคณบดีคณะสังคมศาสตร์)";
+    } else if (service.templateType === 'open_account_memo') {
+      recipientString = "อธิการบดีมหาวิทยาลัยเชียงใหม่ (ผ่านงานวิจัยคณะสังคมศาสตร์)";
+    } else if (service.templateType === 'progress_report_memo') {
+      recipientString = "ผู้อำนวยการสำนักงานบริหารงานวิจัย มช. (ผ่านคณบดีคณะสังคมศาสตร์)";
+    } else if (service.templateType === 'proactive_support_memo') {
+      recipientString = "คณบดีคณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่";
+    } else if (service.templateType === 'db_update_memo') {
+      recipientString = "เจ้าหน้าที่ผู้ดูแลระบบฐานข้อมูลวิจัยคณะสังคมศาสตร์ มช.";
+    }
+
+    docChildren.push(
+      new Paragraph({
+        children: [
+          new TextRun({ text: "เรียน  ", bold: true, size: 32, font: "TH Sarabun New" }),
+          new TextRun({ text: recipientString, size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 240 },
+      })
+    );
+  }
+
+  // 2. จัดทำเนื้อหาหลักของจดหมาย (แบ่งตามประเภท)
+  const pStyle = {
+    alignment: AlignmentType.JUSTIFIED,
+    indent: { firstLine: 720 }, // ย่อหน้า 1.25 ซม. (720 dxa)
+    spacing: { after: 120, line: 360 }, // ระยะห่าง 6pt และ Line Spacing 1.5
+  };
+
+  if (service.templateType === 'proposal_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ด้วยข้าพเจ้า ${data.researcherName} สังกัด ${data.department} คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่ มีความประสงค์จะยื่นข้อเสนอโครงการวิจัย เรื่อง “${data.projectTitle}” เพื่อเสนอขอรับทุนอุดหนุนการวิจัยประจำปีงบประมาณจาก ${data.fundingSource} งบประมาณจำนวน ${formatNumber(data.budget)} บาท (เงินสุทธิหลังตรวจสอบสัดส่วนเงินสมทบสถาบันเรียบร้อยแล้ว)`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "ในการนี้ ข้าพเจ้าจึงใคร่ขอความอนุเคราะห์จากคณะสังคมศาสตร์ในการพิจารณาให้ความเห็นชอบ และเสนอข้อเสนอโครงการวิจัยดังกล่าวไปยังมหาวิทยาลัยเชียงใหม่และแหล่งทุน เพื่อประกอบการขอรับการอนุมัติทุนอย่างเป็นทางการต่อไป เอกสารข้อเสนอโครงการได้แนบมาพร้อมบันทึกนี้แล้ว",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติ",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'grant_approval_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ด้วยข้าพเจ้า ${data.researcherName} สังกัด ${data.department} คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่ ได้ยื่นข้อเสนอโครงการวิจัย เรื่อง “${data.projectTitle}” เพื่อเสนอขอรับทุนอุดหนุนการวิจัย และได้รับการแจ้งประกาศผลการจัดสรรทุนอุดหนุนการวิจัยอย่างเป็นทางการจาก ${data.fundingSource} โดยได้รับการจัดสรรงบประมาณจำนวนเงินทั้งสิ้น ${formatNumber(data.budget)} บาท เรียบร้อยแล้ว`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "ในการนี้ เพื่อให้การดำเนินงานโครงการวิจัยดังกล่าวเป็นไปด้วยความเรียบร้อยและถูกต้องตามเกณฑ์ข้อบังคับของคณะและมหาวิทยาลัยเชียงใหม่ ข้าพเจ้าจึงใคร่ขอความอนุเคราะห์ส่งเอกสารการประกาศจัดสรรทุน เพื่อดำเนินการพิจารณาเตรียมจัดทำสัญญาการรับทุนวิจัยและขอรับมอบอำนาจลงนามในส่วนที่เกี่ยวข้องต่อไป เอกสารการอนุมัติทุนได้แนบมาพร้อมบันทึกข้อความนี้แล้ว",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติและดำเนินการต่อไป",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'power_of_attorney_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ตามที่โครงการวิจัย เรื่อง “${data.projectTitle}” ได้รับทุนสนับสนุนจาก ${data.fundingSource} งบประมาณรวม ${formatNumber(data.budget)} บาท มีความจำเป็นต้องทำการลงนามและทำสัญญาผูกพันทางนิติกรรมกับทางแหล่งทุนภายนอก เพื่อให้สอดรับกับระยะเวลาโครงการคือ ${data.contractPeriod}`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `เพื่อให้การลงนามและทำสัญญาเป็นไปด้วยความเรียบร้อย ข้าพเจ้า ${data.researcherName} ในฐานะหัวหน้าโครงการวิจัย จึงใคร่ขอเสนอขอรับมอบอำนาจจากอธิการบดีมหาวิทยาลัยเชียงใหม่ ในการลงนามสัญญาโครงการวิจัยดังกล่าวในนามตัวแทนมหาวิทยาลัย และเป็นคู่สัญญาที่ถูกต้องตามข้อกำหนด`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดพิจารณาดำเนินการในส่วนที่เกี่ยวข้องต่อไป",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'open_account_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ด้วยข้าพเจ้า ${data.researcherName} ได้รับทุนสนับสนุนการวิจัยจาก ${data.fundingSource} เพื่อดำเนินงานวิจัยโครงการ “${data.projectTitle}” ซึ่งสัญญาได้ลงนามเรียบร้อยแล้ว ในการนี้ตามระเบียบแหล่งทุนและมหาวิทยาลัยเชียงใหม่มีความจำเป็นต้องขออนุมัติเปิดบัญชีออมทรัพย์สำหรับใช้จ่ายเฉพาะเจาะจงในงานวิจัยดังกล่าว ณ ${data.bankBranch}`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "ข้าพเจ้าจึงขออนุมัติมอบอำนาจทำธุรกรรมสั่งจ่ายให้กับบุคคลต่อไปนี้:",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+    // แสดงรายชื่อผู้ลงนาม แบบย่อหน้าพิเศษ
+    const signatoriesLines = data.signatories.split('\n');
+    signatoriesLines.forEach(line => {
+      if (line.trim() !== '') {
+        docChildren.push(
+          new Paragraph({
+            indent: { left: 1440 }, // ย่อหน้าลึก 2.54 ซม.
+            spacing: { after: 60, line: 240 },
+            children: [
+              new TextRun({ text: line, size: 32, font: "TH Sarabun New" }),
+            ],
+          })
+        );
+      }
+    });
+
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        spacing: { before: 120, after: 120, line: 360 },
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติให้เปิดบัญชีเงินฝากออมทรัพย์ในชื่อโครงการดังกล่าว",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'bank_letter_draft') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ด้วย คณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่ ได้อนุมัติและรับสัญญารับทุนสนับสนุนการวิจัย โครงการ “${data.projectTitle}” ของ ${data.researcherName} หัวหน้าโครงการวิจัย เพื่อประโยชน์ในการโอนจ่าย จัดเก็บ ตรวจสอบทางการบัญชี และเบิกจ่ายเงินงวดวิจัยตามระเบียบแหล่งทุนภายนอกอย่างถูกต้องและโปร่งใส`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `คณะสังคมศาสตร์ จึงใคร่ขอความอนุเคราะห์ให้ท่านดำเนินการเปิดบัญชีเงินฝากประเภทออมทรัพย์ ในนามชื่อบัญชี “${data.accountName}” โดยมีเงื่อนไขการเบิกจ่ายสั่งจ่ายเงินคือ “ลงลายมือชื่อสั่งจ่ายโดย ${data.signatoriesList}” ดังเอกสารการอนุมัติการมอบอำนาจเปิดบัญชีของทางมหาวิทยาลัยที่แนบมาด้วยนี้`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดให้ความอนุเคราะห์ในการเปิดบัญชีดังกล่าว จักเป็นพระคุณยิ่ง",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'contract_signing_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ตามที่ ข้าพเจ้า ${data.researcherName} สังกัด ${data.department} ได้ยื่นขอเสนอทุนโครงการวิจัยเรื่อง “${data.projectTitle}” และได้รับการอนุมัติทุนสนับสนุนจาก ${data.fundingSource} วงเงินงบประมาณเป็นเงินทั้งสิ้นจำนวน ${formatNumber(data.budget)} บาท สัญญาระบุให้มีคู่สัญญาฝ่ายหนึ่งเป็นมหาวิทยาลัยเชียงใหม่ โดยผู้แทนคือคณบดีคณะสังคมศาสตร์ ลงนามเป็นพยาน/ผู้แทน ร่วมกับแหล่งทุนคือ ${data.contractParties}`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "ในการนี้ ข้าพเจ้าจึงนำสัญญาการรับทุนตัวจริงจำนวน 3 ชุด ซึ่งได้ทำการร่วมลงนามในฐานะหัวหน้าโครงการวิจัย/พยานพิจารณาตรวจสอบความถูกต้องเสร็จสิ้นแล้ว เสนอมายังงานบริหารงานวิจัยเพื่อโปรดนำเสนอต่อคณบดีพิจารณาลงลายมือชื่อพยานหรือคู่สัญญาในสัญญารับทุนเพื่อนำส่งให้แหล่งทุนต่อไป",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดพิจารณาลงนามในสัญญา",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'disbursement_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ตามที่ ข้าพเจ้า ${data.researcherName} ในฐานะหัวหน้าโครงการวิจัย “${data.projectTitle}” ได้รับการจัดสรรงบประมาณจากแหล่งทุนวิจัยภายนอก ${data.fundingSource} ซึ่งปัจจุบัน แหล่งทุนได้ดำเนินการโอนเงินเข้าคลังโครงการของคณะสังคมศาสตร์เรียบร้อยแล้ว ในการนี้ ข้าพเจ้ามีความประสงค์ที่จะขออนุมัติเบิกจ่ายงบประมาณโครงการวิจัยในรอบงวดนี้ เป็น เงินงวดที่ ${data.installmentNo} คิดเป็นมูลค่าทุนจำนวน ${formatNumber(data.installmentAmount)} บาท`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `โดยข้าพเจ้าได้ดำเนินการสรุปความก้าวหน้าลงระบบ CMU Research ตลอดจนจัดเตรียมใบสำคัญทางการเงินครบถ้วนแล้ว จึงขอความอนุเคราะห์ให้ทางฝ่ายการเงินการบัญชีคณะสังคมศาสตร์ดำเนินการโอนยอดเงินจำนวนดังกล่าว (สุทธิหลังหักเงินสมทบโครงการวิจัย) เข้าสู่บัญชีธนาคารวิจัยเลขที่ ${data.bankAccountNo} เพื่อใช้จ่ายในภารกิจการดำเนินโครงการต่อไป`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติการเบิกจ่ายเงินงวดวิจัย",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'page_charge_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ด้วยบทความวิจัยของข้าพเจ้า ${data.researcherName} สังกัด ${data.department} เรื่อง “${data.articleTitle}” ได้รับการตรวจประเมินและยอมรับให้ได้รับการตีพิมพ์เผยแพร่อย่างเป็นทางการในวารสารระดับนานาชาติ/ชาติ ชื่อ “${data.journalName}” ซึ่งวารสารดังกล่าวได้รับการจัดอันดับอยู่ในฐานข้อมูล ${data.databaseType}`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ในการนี้ ข้าพเจ้าจึงนำเอกสารหลักฐานใบตอบรับ (Acceptance Letter) ใบเสร็จรับเงินค่าตีพิมพ์ (APC) และบทความฉบับตีพิมพ์ตัวจริงยื่นความประสงค์เพื่อขออนุมัติเบิกจ่ายเงินสนับสนุนช่วยเหลือค่าธรรมเนียมการตีพิมพ์เผยแพร่บทความวิชาการ (Page Charge / APC) จากงบประมาณกองทุนวิจัยคณะสังคมศาสตร์ จำนวนทั้งสิ้น ${formatNumber(data.amountRequested)} บาท`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติให้ความช่วยเหลือดังกล่าว",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'overhead_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ตามที่โครงการวิจัย เรื่อง “${data.projectTitle}” ภายใต้การบริหารงานของหัวหน้าโครงการ ${data.researcherName} ได้รับทุนวิจัยภายนอกจาก ${data.fundingSource} งบประมาณสุทธิสัญญารับทุนจำนวน ${formatNumber(data.totalBudget)} บาท และปัจจุบันได้มีการตั้งเบิกงวดเงินวิจัยในรอบนี้จำนวน ${formatNumber(data.currentInstallmentAmount)} บาท แล้วนั้น`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ตามระเบียบมหาวิทยาลัยเชียงใหม่ ว่าด้วยการจัดสรรค่าใช้จ่ายเพื่อการจัดการวิจัย (Overhead) ในอัตราที่สัญญาระบุคือร้อยละ ${data.overheadRate}% ฝ่ายการเงินของงานวิจัยคณะสังคมศาสตร์ ได้ประมวลผลและขออนุมัติโอนจ่ายเงินอุดหนุนเพื่อนำส่งกองทุนวิจัยในส่วนงานต่างๆ ดังนี้:`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+    // รายการนำส่งเงินสมทบ
+    const ohAmount = data.currentInstallmentAmount * (data.overheadRate / 100);
+    docChildren.push(
+      new Paragraph({
+        indent: { left: 1440 },
+        spacing: { after: 60 },
+        children: [
+          new TextRun({ text: `1. เงินสมทบส่งเข้ากองทุนอุดหนุนการวิจัยมหาวิทยาลัยเชียงใหม่ (30% จากยอด Overhead) เป็นเงินจำนวน ${formatNumber(ohAmount * 0.3)} บาท`, size: 32, font: "TH Sarabun New" }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        indent: { left: 1440 },
+        spacing: { after: 120 },
+        children: [
+          new TextRun({ text: `2. เงินสมทบส่งเข้ากองทุนพัฒนาวิจัยคณะสังคมศาสตร์ (70% จากยอด Overhead) เป็นเงินจำนวน ${formatNumber(ohAmount * 0.7)} บาท`, size: 32, font: "TH Sarabun New" }),
+        ],
+      })
+    );
+
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดอนุมัติโอนย้ายงบประมาณสมทบโครงการดังกล่าวตามที่เสนอ",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'progress_report_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ด้วยโครงการวิจัย เรื่อง “${data.projectTitle}” ของหัวหน้าโครงการ ${data.researcherName} ซึ่งได้รับทุนอุดหนุนการวิจัยภายนอกจาก ${data.fundingSource} บัดนี้ ได้ดำเนินการวิจัยบรรลุไปตามรอบระยะเวลาโครงการที่กำหนดไว้ในเงื่อนไขสัญญารับทุนเรียบร้อยแล้ว`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ในการนี้ ข้าพเจ้าจึงนำส่งรายงานความก้าวหน้าโครงการวิจัย (Progress Report) สำหรับ รอบการรายงานงวด ${data.reportingPeriod} พร้อมรายงานงบประมาณค่าใช้จ่ายและการเงินมาพร้อมบันทึกฉบับนี้จำนวน 1 ชุด เพื่อโปรดพิจารณาส่งมอบต่อยังส่วนกลางของมหาวิทยาลัยและตรวจสอบผลลัพธ์เป็นลายลักษณ์อักษรต่อไป`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดอนุมัตินำส่งรายงานความก้าวหน้า",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'proactive_support_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ด้วยข้าพเจ้า ${data.researcherName} สังกัด ${data.affiliation} เป็นนักวิจัยยุทธศาสตร์เชิงรุกที่มีความประสงค์จะดำเนินกิจกรรมขยายขอบเขตการทำโครงการวิจัยในเรื่องหลักคือ “${data.researchArea}” เพื่อสนับสนุนเป้าหมายยุทธศาสตร์ความเป็นเลิศทางการวิจัยของคณะสังคมศาสตร์`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "ในการนี้ ข้าพเจ้าจึงขอยื่นความจำนงในการขอรับการสนับสนุนบริการตามรายละเอียดดังต่อไปนี้:",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+    // รายการขอสนับสนุน
+    const supportLines = data.supportRequired.split('\n');
+    supportLines.forEach(line => {
+      if (line.trim() !== '') {
+        docChildren.push(
+          new Paragraph({
+            indent: { left: 1440 },
+            spacing: { after: 60, line: 240 },
+            children: [
+              new TextRun({ text: line, size: 32, font: "TH Sarabun New" }),
+            ],
+          })
+        );
+      }
+    });
+
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        spacing: { before: 120, after: 120, line: 360 },
+        children: [
+          new TextRun({
+            text: "หวังเป็นอย่างยิ่งว่าจะได้รับการจัดสรรเพื่อความคล่องตัวในการปฏิบัติงานวิจัยเชิงรุกร่วมกับคณะสังคมศาสตร์",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดพิจารณาความอนุเคราะห์และอนุมัติ",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+
+  } else if (service.templateType === 'db_update_memo') {
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `ด้วย โครงการวิจัย เรื่อง “${data.projectTitle}” ของหัวหน้าโครงการ ${data.researcherName} ได้รับสัญญารับทุนสนับสนุนการดำเนินโครงการเสร็จสิ้นสมบูรณ์เป็นเงินงบประมาณรวมจำนวน ${formatNumber(data.budget)} บาท ในการนี้ ข้าพเจ้าจึงนำส่งเอกสารสัญญาเพื่อขึ้นทะเบียนและบันทึกปรับปรุงข้อมูลในฐานข้อมูลวิจัยให้เป็นปัจจุบัน`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: `จุดประสงค์ขอยื่นปรับปรุงฐานข้อมูล: ${data.updateStatus} เพื่อใช้รายงานสถิติเป็นค่าน้ำหนักผลงานและประวัติกิจกรรมวิชาการประจำปีของบุคลากรในคณะสังคมศาสตร์`,
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        ...pStyle,
+        children: [
+          new TextRun({
+            text: "จึงเรียนมาเพื่อโปรดดำเนินการบันทึกข้อมูลปรับปรุงฐานข้อมูลวิจัย",
+            size: 32,
+            font: "TH Sarabun New",
+          }),
+        ],
+      })
+    );
+  }
+
+  // 3. จัดทำท้ายจดหมาย (ส่วนการลงชื่อ)
+  let signerName = data.researcherName;
+  let signerRole = "หัวหน้าโครงการวิจัย";
+
+  if (service.templateType === 'bank_letter_draft') {
+    docChildren.push(
+      new Paragraph({
+        indent: { left: 4500 },
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({ text: "ขอแสดงความนับถือ", size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { before: 400, after: 200 },
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        indent: { left: 4500 },
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({ text: "...................................................", size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 120 },
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        indent: { left: 4500 },
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({ text: "( คณบดีคณะสังคมศาสตร์ )", size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 60 },
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        indent: { left: 4500 },
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({ text: "มหาวิทยาลัยเชียงใหม่", size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 120 },
+      })
+    );
+
+  } else {
+    if (service.templateType === 'page_charge_memo') {
+      signerRole = "อาจารย์/นักวิจัย ผู้ขอเบิก";
+    } else if (service.templateType === 'proactive_support_memo') {
+      signerRole = "นักวิจัยยุทธศาสตร์เชิงรุก คณะสังคมศาสตร์";
+    } else if (service.templateType === 'overhead_memo') {
+      signerName = "คุณณัฐพล พิพัฒนวิชัย";
+      signerRole = "เจ้าหน้าที่การเงินการบัญชีงานวิจัย";
+    }
+
+    docChildren.push(
+      new Paragraph({
+        indent: { left: 4500 },
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({ text: "ลงชื่อ...................................................", size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { before: 480, after: 120 },
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        indent: { left: 4500 },
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({ text: `( ${signerName} )`, size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 60 },
+      })
+    );
+    docChildren.push(
+      new Paragraph({
+        indent: { left: 4500 },
+        alignment: AlignmentType.CENTER,
+        children: [
+          new TextRun({ text: signerRole, size: 32, font: "TH Sarabun New" }),
+        ],
+        spacing: { after: 120 },
+      })
+    );
+  }
+
+  // 4. สังเคราะห์และดาวน์โหลดไฟล์ Word
+  const doc = new Document({
+    sections: [{
+      properties: {
+        page: {
+          margin: {
+            top: 1134,    // 2 cm
+            bottom: 1134, // 2 cm
+            left: 1417,   // 2.5 cm
+            right: 1134,  // 2 cm
+          }
+        }
+      },
+      children: docChildren,
+    }],
+  });
+
+  Packer.toBlob(doc).then((blob) => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ร่าง_${service.shortTitle || service.title}.docx`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }).catch((err) => {
+    alert("เกิดข้อผิดพลาดในการสังเคราะห์ไฟล์ Word: " + err.message);
+  });
 }
 
 // ช่วยคำนวณหาวันปัจจุบันของไทย

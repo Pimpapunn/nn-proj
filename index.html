@@ -350,10 +350,16 @@
                 <div class="generator-preview-panel glass-panel">
                   <div class="preview-header">
                     <span class="preview-title">ตัวอย่างร่างบันทึกข้อความ (Draft Preview)</span>
-                    <button class="copy-draft-btn" id="copyDraftBtn">
-                      <span class="material-icons">content_copy</span>
-                      <span id="copyBtnText">คัดลอกร่างเอกสาร</span>
-                    </button>
+                    <div class="preview-actions" style="display: flex; gap: 8px;">
+                      <button class="copy-draft-btn" id="copyDraftBtn">
+                        <span class="material-icons">content_copy</span>
+                        <span id="copyBtnText">คัดลอกร่างเอกสาร</span>
+                      </button>
+                      <button class="download-word-btn" id="downloadWordBtn">
+                        <span class="material-icons">download</span>
+                        <span>ดาวน์โหลดไฟล์ Word</span>
+                      </button>
+                    </div>
                   </div>
                   <div class="preview-scroller">
                     <div class="memo-document" id="memoOutputArea">
@@ -406,6 +412,8 @@
   </div>
 
   <!-- Loading data first, then application controller -->
+  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+  <script src="js/garuda_base64.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
 </body>
