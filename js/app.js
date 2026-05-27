@@ -81,14 +81,27 @@ function renderCategories() {
   const categoryTabs = document.getElementById('categoryTabs');
   if (!categoryTabs) return;
 
-  categoryTabs.innerHTML = RESEARCH_DATA.categories.map(cat => `
+  const cats = RESEARCH_DATA.categories;
+  const row1 = cats.slice(0, 3);
+  const row2 = cats.slice(3, 6);
+
+  const renderBtn = cat => `
     <button class="tab-btn ${cat.id === currentCategory ? 'active' : ''}" 
             onclick="filterCategory('${cat.id}')" 
             id="tab-${cat.id}">
       <span class="material-icons">${cat.icon}</span>
       <span>${cat.title}</span>
     </button>
-  `).join('');
+  `;
+
+  categoryTabs.innerHTML = `
+    <div class="category-row row-1">
+      ${row1.map(renderBtn).join('')}
+    </div>
+    <div class="category-row row-2">
+      ${row2.map(renderBtn).join('')}
+    </div>
+  `;
 }
 
 function filterCategory(catId) {
