@@ -17,9 +17,12 @@
   --font-body: 'Sarabun', 'Inter', sans-serif;
 
   /* HSL Color Tokens (Light Mode - Dark Blue, Light Blue, Purple) */
-  --primary-hue: 220;    /* Dark Blue */
-  --secondary-hue: 198;  /* Light Blue */
-  --accent-hue: 270;     /* Purple */
+  --primary-hue: 220;
+  /* Dark Blue */
+  --secondary-hue: 198;
+  /* Light Blue */
+  --accent-hue: 270;
+  /* Purple */
 
   --bg-app: linear-gradient(135deg, hsl(var(--primary-hue), 45%, 97%) 0%, hsl(var(--secondary-hue), 45%, 96%) 100%);
   --bg-card: rgba(255, 255, 255, 0.78);
@@ -148,7 +151,7 @@ body {
   overflow: hidden;
   pointer-events: none;
   background: var(--bg-app);
-  
+
   /* Gradient variables (Light Mode) */
   --blob-1-gradient: radial-gradient(circle, hsla(210, 95%, 85%, 0.85) 0%, hsla(205, 90%, 75%, 0.6) 50%, hsla(220, 95%, 55%, 0) 100%);
   --blob-2-gradient: radial-gradient(circle, hsla(195, 95%, 82%, 0.85) 0%, hsla(190, 90%, 70%, 0.6) 50%, hsla(205, 95%, 52%, 0) 100%);
@@ -220,9 +223,11 @@ body.dark-mode .bg-blob {
   0% {
     transform: translate(0, 0) scale(1);
   }
+
   50% {
     transform: translate(12vw, 15vh) scale(1.1);
   }
+
   100% {
     transform: translate(0, 0) scale(1);
   }
@@ -232,9 +237,11 @@ body.dark-mode .bg-blob {
   0% {
     transform: translate(0, 0) scale(1.05);
   }
+
   50% {
     transform: translate(-15vw, -20vh) scale(0.9);
   }
+
   100% {
     transform: translate(0, 0) scale(1.05);
   }
@@ -244,9 +251,11 @@ body.dark-mode .bg-blob {
   0% {
     transform: translate(0, 0) scale(0.95);
   }
+
   50% {
     transform: translate(-18vw, 6vh) scale(1.12);
   }
+
   100% {
     transform: translate(0, 0) scale(0.95);
   }
@@ -256,9 +265,11 @@ body.dark-mode .bg-blob {
   0% {
     transform: translate(0, 0) scale(1);
   }
+
   50% {
     transform: translate(10vw, -25vh) scale(1.05);
   }
+
   100% {
     transform: translate(0, 0) scale(1);
   }
@@ -1426,7 +1437,8 @@ body.dark-mode .widget-tips {
 }
 
 .download-word-btn {
-  background: #2b579a; /* MS Word Blue */
+  background: #2b579a;
+  /* MS Word Blue */
   color: var(--text-white);
   padding: 6px 14px;
   border-radius: 50px;
@@ -2083,8 +2095,8 @@ body.dark-mode .diagram-img-wrapper {
   max-width: 100%;
   max-height: 75vh;
   border-radius: var(--radius-md);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-  border: 2px solid rgba(255,255,255,0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   object-fit: contain;
 }
 
@@ -2095,7 +2107,7 @@ body.dark-mode .diagram-img-wrapper {
   font-weight: 500;
   font-family: var(--font-heading);
   text-align: center;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   padding: 8px 24px;
   border-radius: 50px;
 }
@@ -2107,8 +2119,8 @@ body.dark-mode .diagram-img-wrapper {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.2);
-  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--text-white);
   display: flex;
   align-items: center;
@@ -2266,35 +2278,56 @@ body.dark-mode .admin-btn {
 }
 
 @media (max-width: 768px) {
+
   /* Layout Padding */
   .container {
     padding: 0 16px;
   }
 
   /* Scale down animated background blobs on mobile */
-  .blob-1 { width: 260px; height: 260px; }
-  .blob-2 { width: 300px; height: 300px; }
-  .blob-3 { width: 220px; height: 220px; }
-  .blob-4 { width: 240px; height: 240px; }
+  .blob-1 {
+    width: 260px;
+    height: 260px;
+  }
+
+  .blob-2 {
+    width: 300px;
+    height: 300px;
+  }
+
+  .blob-3 {
+    width: 220px;
+    height: 220px;
+  }
+
+  .blob-4 {
+    width: 240px;
+    height: 240px;
+  }
 
   /* Header adjustments */
   .main-header {
     padding: 12px 0;
   }
+
   .logo-block {
     gap: 10px;
   }
+
   .logo-icon {
     width: 42px;
     height: 42px;
     border-radius: var(--radius-sm);
   }
+
   .logo-icon span {
     font-size: 20px;
   }
+
   .logo-text h1 {
     font-size: 16px;
   }
+
   .logo-text span {
     font-size: 11px;
   }
@@ -2303,14 +2336,17 @@ body.dark-mode .admin-btn {
   .hero-section {
     padding: 40px 0 30px 0;
   }
+
   .hero-section h2 {
     font-size: 28px;
     margin-bottom: 12px;
   }
+
   .hero-subtitle {
     font-size: 14.5px;
     margin-bottom: 24px;
   }
+
   .badge-tag {
     font-size: 12px;
     padding: 4px 12px;
@@ -2321,13 +2357,16 @@ body.dark-mode .admin-btn {
   .search-hub-wrapper {
     margin-bottom: 24px;
   }
+
   .search-box {
     padding: 6px 12px 6px 18px;
     gap: 12px;
   }
+
   .search-box input {
     font-size: 15px;
   }
+
   .search-icon {
     font-size: 20px;
   }
@@ -2340,12 +2379,17 @@ body.dark-mode .admin-btn {
     padding-bottom: 10px;
     margin-bottom: 24px;
     gap: 8px;
-    scrollbar-width: none; /* Firefox */
-    -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+    scrollbar-width: none;
+    /* Firefox */
+    -webkit-overflow-scrolling: touch;
+    /* iOS smooth scrolling */
   }
+
   .category-tabs::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
+    display: none;
+    /* Chrome/Safari */
   }
+
   .tab-btn {
     flex-shrink: 0;
     padding: 10px 16px;
@@ -2357,6 +2401,7 @@ body.dark-mode .admin-btn {
   .services-section {
     padding-bottom: 40px;
   }
+
   .services-grid {
     gap: 16px;
     grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
@@ -2366,29 +2411,36 @@ body.dark-mode .admin-btn {
   .assistant-section {
     padding: 40px 0;
   }
+
   .assistant-panel {
     grid-template-columns: 1fr;
     gap: 0;
     border-radius: var(--radius-md);
   }
+
   .assistant-intro-column {
     padding: 24px 20px;
   }
+
   .assistant-chat-column {
     padding: 24px 20px;
     min-height: 350px;
   }
+
   .assistant-avatar-large {
     font-size: 56px;
     margin-bottom: 10px;
   }
+
   .assistant-intro-column h3 {
     font-size: 20px;
   }
+
   .chat-bubble {
     font-size: 13.5px;
     padding: 12px 16px;
   }
+
   .chat-option-btn {
     padding: 10px 16px;
     font-size: 13px;
@@ -2398,6 +2450,7 @@ body.dark-mode .admin-btn {
   .quick-portal-section {
     padding: 40px 0;
   }
+
   .portal-grid {
     gap: 16px;
   }
@@ -2406,15 +2459,19 @@ body.dark-mode .admin-btn {
   .helpdesk-section {
     padding: 40px 0;
   }
+
   .helpdesk-header {
     margin-bottom: 32px;
   }
+
   .helpdesk-header h2 {
     font-size: 26px;
   }
+
   .helpdesk-header p {
     font-size: 14px;
   }
+
   .staff-grid {
     gap: 16px;
   }
@@ -2423,14 +2480,17 @@ body.dark-mode .admin-btn {
   .main-footer {
     padding: 32px 0 16px 0;
   }
+
   .footer-grid {
     gap: 24px;
     margin-bottom: 24px;
   }
+
   .footer-info-col h3 {
     font-size: 18px;
     margin-bottom: 12px;
   }
+
   .footer-links-col h4 {
     font-size: 15px;
     margin-bottom: 12px;
@@ -2444,30 +2504,37 @@ body.dark-mode .admin-btn {
     border-radius: 0;
     border: none;
   }
+
   .modal-header {
     padding: 16px 20px;
   }
+
   .modal-title-icon {
     width: 40px;
     height: 40px;
   }
+
   .modal-title-icon span {
     font-size: 22px;
   }
+
   .modal-title-text h2 {
     font-size: 18px;
   }
+
   .modal-body {
     padding: 20px 16px;
   }
+
   .modal-summary-panel {
     padding: 16px;
     margin-bottom: 20px;
   }
+
   .modal-summary-panel p {
     font-size: 13.5px;
   }
-  
+
   /* Horizontal scroll for modal view tabs */
   .modal-views-tabs {
     overflow-x: auto;
@@ -2476,9 +2543,11 @@ body.dark-mode .admin-btn {
     -webkit-overflow-scrolling: touch;
     margin-bottom: 20px;
   }
+
   .modal-views-tabs::-webkit-scrollbar {
     display: none;
   }
+
   .modal-view-tab-btn {
     padding: 10px 16px;
     font-size: 13.5px;
@@ -2489,29 +2558,38 @@ body.dark-mode .admin-btn {
   .document-item {
     padding: 14px 16px;
   }
+
   .doc-info {
     gap: 12px;
   }
+
   .doc-file-icon {
     width: 38px;
     height: 38px;
     font-size: 20px;
   }
+
   .doc-details h4 {
     font-size: 13.5px;
   }
 }
 
 @media (max-width: 600px) {
+
   /* Navigation actions responsive conversion to icon buttons */
   .logo-text span {
-    display: none; /* Hide subtext of logo to save horizontal space */
+    display: none;
+    /* Hide subtext of logo to save horizontal space */
   }
+
   .cmu-btn span:not(.material-icons),
   .admin-btn span:not(.material-icons) {
-    display: none; /* Hide text label on buttons */
+    display: none;
+    /* Hide text label on buttons */
   }
-  .cmu-btn, .admin-btn {
+
+  .cmu-btn,
+  .admin-btn {
     width: 40px;
     height: 40px;
     padding: 0;
@@ -2519,14 +2597,17 @@ body.dark-mode .admin-btn {
     justify-content: center;
     flex-shrink: 0;
   }
+
   .cmu-btn span.material-icons,
   .admin-btn span.material-icons {
     margin: 0;
     font-size: 20px;
   }
+
   .nav-actions {
     gap: 8px;
   }
+
   .theme-toggle {
     width: 40px;
     height: 40px;
@@ -2535,14 +2616,17 @@ body.dark-mode .admin-btn {
 }
 
 @media (max-width: 480px) {
+
   /* General sizes for small viewport */
   .logo-text h1 {
     font-size: 15px;
   }
+
   .logo-icon {
     width: 36px;
     height: 36px;
   }
+
   .logo-icon span {
     font-size: 18px;
   }
@@ -2550,30 +2634,36 @@ body.dark-mode .admin-btn {
   .hero-section h2 {
     font-size: 24px;
   }
-  
+
   /* Services Grid Cards Stack styling */
   .services-grid {
     grid-template-columns: 1fr;
     gap: 14px;
   }
+
   .service-card {
     padding: 20px 16px;
   }
+
   .service-card h3 {
     font-size: 16px;
     height: auto;
     margin-bottom: 6px;
   }
+
   .service-card p {
     font-size: 13px;
   }
+
   .card-icon-box {
     width: 48px;
     height: 48px;
   }
+
   .card-icon-box span {
     font-size: 24px;
   }
+
   .service-badge-num {
     width: 28px;
     height: 28px;
@@ -2585,14 +2675,17 @@ body.dark-mode .admin-btn {
     padding: 16px;
     gap: 12px;
   }
+
   .portal-logo-box {
     width: 46px;
     height: 46px;
     font-size: 22px;
   }
+
   .portal-info h3 {
     font-size: 14.5px;
   }
+
   .portal-info p {
     font-size: 11px;
   }
@@ -2601,15 +2694,18 @@ body.dark-mode .admin-btn {
   .staff-grid {
     grid-template-columns: 1fr;
   }
+
   .staff-card {
     padding: 20px 16px;
   }
+
   .staff-avatar {
     width: 76px;
     height: 76px;
     font-size: 32px;
     margin-bottom: 12px;
   }
+
   .staff-card h3 {
     font-size: 15.5px;
   }
@@ -2618,7 +2714,8 @@ body.dark-mode .admin-btn {
   .generator-preview-panel {
     height: 380px;
   }
+
   .preview-scroller {
     padding: 16px;
   }
-}
+}
