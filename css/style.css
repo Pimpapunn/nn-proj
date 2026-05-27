@@ -128,12 +128,143 @@ body.dark-mode {
 body {
   font-family: var(--font-body);
   color: var(--text-main);
-  background: var(--bg-app);
+  background: transparent;
   min-height: 100vh;
   overflow-x: hidden;
   line-height: 1.6;
   transition: var(--transition-smooth);
 }
+
+/* ==========================================================================
+   ANIMATED GRADIENT BACKGROUND BLOBS
+   ========================================================================== */
+.animated-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bg-app);
+  
+  /* Gradient variables (Light Mode) */
+  --blob-1-gradient: radial-gradient(circle, hsla(198, 95%, 72%, 0.85) 0%, hsla(215, 90%, 55%, 0.5) 50%, hsla(220, 95%, 35%, 0) 100%);
+  --blob-2-gradient: radial-gradient(circle, hsla(185, 95%, 68%, 0.85) 0%, hsla(202, 90%, 50%, 0.5) 50%, hsla(205, 95%, 32%, 0) 100%);
+  --blob-3-gradient: radial-gradient(circle, hsla(210, 98%, 78%, 0.85) 0%, hsla(220, 85%, 58%, 0.5) 50%, hsla(222, 95%, 32%, 0) 100%);
+  --blob-4-gradient: radial-gradient(circle, hsla(190, 95%, 68%, 0.85) 0%, hsla(198, 90%, 46%, 0.5) 50%, hsla(200, 95%, 28%, 0) 100%);
+}
+
+body.dark-mode .animated-bg {
+  /* Gradient variables (Dark Mode) */
+  --blob-1-gradient: radial-gradient(circle, hsla(200, 90%, 62%, 0.75) 0%, hsla(218, 85%, 42%, 0.4) 50%, hsla(220, 90%, 18%, 0) 100%);
+  --blob-2-gradient: radial-gradient(circle, hsla(190, 90%, 58%, 0.75) 0%, hsla(202, 85%, 38%, 0.4) 50%, hsla(205, 90%, 14%, 0) 100%);
+  --blob-3-gradient: radial-gradient(circle, hsla(212, 95%, 68%, 0.75) 0%, hsla(220, 80%, 48%, 0.4) 50%, hsla(222, 90%, 16%, 0) 100%);
+  --blob-4-gradient: radial-gradient(circle, hsla(185, 90%, 58%, 0.75) 0%, hsla(198, 90%, 35%, 0.4) 50%, hsla(200, 90%, 12%, 0) 100%);
+}
+
+.bg-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(20px);
+  opacity: 0.65;
+  transition: var(--transition-smooth);
+}
+
+body.dark-mode .bg-blob {
+  opacity: 0.45;
+  filter: blur(30px);
+}
+
+.blob-1 {
+  top: 10%;
+  left: 10%;
+  width: 480px;
+  height: 480px;
+  background: var(--blob-1-gradient);
+  animation: moveBlob1 24s infinite alternate ease-in-out;
+}
+
+.blob-2 {
+  bottom: 5%;
+  right: 5%;
+  width: 520px;
+  height: 520px;
+  background: var(--blob-2-gradient);
+  animation: moveBlob2 28s infinite alternate ease-in-out;
+  animation-delay: -6s;
+}
+
+.blob-3 {
+  top: 40%;
+  left: 45%;
+  width: 420px;
+  height: 420px;
+  background: var(--blob-3-gradient);
+  animation: moveBlob3 22s infinite alternate ease-in-out;
+  animation-delay: -12s;
+}
+
+.blob-4 {
+  bottom: 25%;
+  left: 5%;
+  width: 460px;
+  height: 460px;
+  background: var(--blob-4-gradient);
+  animation: moveBlob4 26s infinite alternate ease-in-out;
+  animation-delay: -18s;
+}
+
+@keyframes moveBlob1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(12vw, 15vh) scale(1.1);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+@keyframes moveBlob2 {
+  0% {
+    transform: translate(0, 0) scale(1.05);
+  }
+  50% {
+    transform: translate(-15vw, -20vh) scale(0.9);
+  }
+  100% {
+    transform: translate(0, 0) scale(1.05);
+  }
+}
+
+@keyframes moveBlob3 {
+  0% {
+    transform: translate(0, 0) scale(0.95);
+  }
+  50% {
+    transform: translate(-18vw, 6vh) scale(1.12);
+  }
+  100% {
+    transform: translate(0, 0) scale(0.95);
+  }
+}
+
+@keyframes moveBlob4 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(10vw, -25vh) scale(1.05);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
@@ -2104,3 +2235,372 @@ body.dark-mode .admin-btn {
   color: var(--secondary);
   font-weight: bold;
 }
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS AND OPTIMIZATIONS
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .modal-content {
+    width: 95%;
+    height: 90vh;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Layout Padding */
+  .container {
+    padding: 0 16px;
+  }
+
+  /* Scale down animated background blobs on mobile */
+  .blob-1 { width: 260px; height: 260px; }
+  .blob-2 { width: 300px; height: 300px; }
+  .blob-3 { width: 220px; height: 220px; }
+  .blob-4 { width: 240px; height: 240px; }
+
+  /* Header adjustments */
+  .main-header {
+    padding: 12px 0;
+  }
+  .logo-block {
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: var(--radius-sm);
+  }
+  .logo-icon span {
+    font-size: 20px;
+  }
+  .logo-text h1 {
+    font-size: 16px;
+  }
+  .logo-text span {
+    font-size: 11px;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    padding: 40px 0 30px 0;
+  }
+  .hero-section h2 {
+    font-size: 28px;
+    margin-bottom: 12px;
+  }
+  .hero-subtitle {
+    font-size: 14.5px;
+    margin-bottom: 24px;
+  }
+  .badge-tag {
+    font-size: 12px;
+    padding: 4px 12px;
+    margin-bottom: 16px;
+  }
+
+  /* Search Hub */
+  .search-hub-wrapper {
+    margin-bottom: 24px;
+  }
+  .search-box {
+    padding: 6px 12px 6px 18px;
+    gap: 12px;
+  }
+  .search-box input {
+    font-size: 15px;
+  }
+  .search-icon {
+    font-size: 20px;
+  }
+
+  /* Category tabs scrollable layout */
+  .category-tabs {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    margin-bottom: 24px;
+    gap: 8px;
+    scrollbar-width: none; /* Firefox */
+    -webkit-overflow-scrolling: touch; /* iOS smooth scrolling */
+  }
+  .category-tabs::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+  .tab-btn {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    font-size: 13.5px;
+    white-space: nowrap;
+  }
+
+  /* Services Grid */
+  .services-section {
+    padding-bottom: 40px;
+  }
+  .services-grid {
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  }
+
+  /* Assistant Section */
+  .assistant-section {
+    padding: 40px 0;
+  }
+  .assistant-panel {
+    grid-template-columns: 1fr;
+    gap: 0;
+    border-radius: var(--radius-md);
+  }
+  .assistant-intro-column {
+    padding: 24px 20px;
+  }
+  .assistant-chat-column {
+    padding: 24px 20px;
+    min-height: 350px;
+  }
+  .assistant-avatar-large {
+    font-size: 56px;
+    margin-bottom: 10px;
+  }
+  .assistant-intro-column h3 {
+    font-size: 20px;
+  }
+  .chat-bubble {
+    font-size: 13.5px;
+    padding: 12px 16px;
+  }
+  .chat-option-btn {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  /* Portals Grid */
+  .quick-portal-section {
+    padding: 40px 0;
+  }
+  .portal-grid {
+    gap: 16px;
+  }
+
+  /* Staff Helpdesk */
+  .helpdesk-section {
+    padding: 40px 0;
+  }
+  .helpdesk-header {
+    margin-bottom: 32px;
+  }
+  .helpdesk-header h2 {
+    font-size: 26px;
+  }
+  .helpdesk-header p {
+    font-size: 14px;
+  }
+  .staff-grid {
+    gap: 16px;
+  }
+
+  /* Footer */
+  .main-footer {
+    padding: 32px 0 16px 0;
+  }
+  .footer-grid {
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+  .footer-info-col h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .footer-links-col h4 {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+
+  /* Full-Screen Mobile Modal Setup */
+  .modal-content {
+    width: 100%;
+    height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    border: none;
+  }
+  .modal-header {
+    padding: 16px 20px;
+  }
+  .modal-title-icon {
+    width: 40px;
+    height: 40px;
+  }
+  .modal-title-icon span {
+    font-size: 22px;
+  }
+  .modal-title-text h2 {
+    font-size: 18px;
+  }
+  .modal-body {
+    padding: 20px 16px;
+  }
+  .modal-summary-panel {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  .modal-summary-panel p {
+    font-size: 13.5px;
+  }
+  
+  /* Horizontal scroll for modal view tabs */
+  .modal-views-tabs {
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 20px;
+  }
+  .modal-views-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .modal-view-tab-btn {
+    padding: 10px 16px;
+    font-size: 13.5px;
+    flex-shrink: 0;
+  }
+
+  /* Document layout inside modal */
+  .document-item {
+    padding: 14px 16px;
+  }
+  .doc-info {
+    gap: 12px;
+  }
+  .doc-file-icon {
+    width: 38px;
+    height: 38px;
+    font-size: 20px;
+  }
+  .doc-details h4 {
+    font-size: 13.5px;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Navigation actions responsive conversion to icon buttons */
+  .logo-text span {
+    display: none; /* Hide subtext of logo to save horizontal space */
+  }
+  .cmu-btn span:not(.material-icons),
+  .admin-btn span:not(.material-icons) {
+    display: none; /* Hide text label on buttons */
+  }
+  .cmu-btn, .admin-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .cmu-btn span.material-icons,
+  .admin-btn span.material-icons {
+    margin: 0;
+    font-size: 20px;
+  }
+  .nav-actions {
+    gap: 8px;
+  }
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* General sizes for small viewport */
+  .logo-text h1 {
+    font-size: 15px;
+  }
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+  }
+  .logo-icon span {
+    font-size: 18px;
+  }
+
+  .hero-section h2 {
+    font-size: 24px;
+  }
+  
+  /* Services Grid Cards Stack styling */
+  .services-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .service-card {
+    padding: 20px 16px;
+  }
+  .service-card h3 {
+    font-size: 16px;
+    height: auto;
+    margin-bottom: 6px;
+  }
+  .service-card p {
+    font-size: 13px;
+  }
+  .card-icon-box {
+    width: 48px;
+    height: 48px;
+  }
+  .card-icon-box span {
+    font-size: 24px;
+  }
+  .service-badge-num {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  /* Portals cards layout */
+  .portal-card {
+    padding: 16px;
+    gap: 12px;
+  }
+  .portal-logo-box {
+    width: 46px;
+    height: 46px;
+    font-size: 22px;
+  }
+  .portal-info h3 {
+    font-size: 14.5px;
+  }
+  .portal-info p {
+    font-size: 11px;
+  }
+
+  /* Staff Card stack layout */
+  .staff-grid {
+    grid-template-columns: 1fr;
+  }
+  .staff-card {
+    padding: 20px 16px;
+  }
+  .staff-avatar {
+    width: 76px;
+    height: 76px;
+    font-size: 32px;
+    margin-bottom: 12px;
+  }
+  .staff-card h3 {
+    font-size: 15.5px;
+  }
+
+  /* Modal generator preview responsiveness */
+  .generator-preview-panel {
+    height: 380px;
+  }
+  .preview-scroller {
+    padding: 16px;
+  }
+}
