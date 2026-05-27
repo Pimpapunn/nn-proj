@@ -721,31 +721,31 @@ function updateMemoPreview() {
     `;
   }
 
-  else if (service.templateType === 'proactive_support_memo') {
-    memoHTML = `
-      <div class="memo-title-block">บันทึกข้อความ</div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ส่วนงาน:</span><span class="memo-meta-value">${data.affiliation} คณะสังคมศาสตร์ โทร. 053-943528</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">ที่:</span><span class="memo-meta-value">อว 8393(15.2)/ -</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">วันที่:</span><span class="memo-meta-value">${getCurrentThaiDate()}</span></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">ขอเสนอขอยืมพื้นที่ทำงาน สิ่งอำนวยความสะดวกในการจัดทำยุทธศาสตร์วิจัย</span></div>
-      <div class="memo-divider"></div>
-      <div class="memo-meta-row"><span class="memo-meta-label">เรียน:</span><span class="memo-meta-value">คณบดีคณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่</span></div>
-      <div class="memo-content">
-        ด้วยข้าพเจ้า ${data.researcherName} สังกัด ${data.affiliation} เป็นนักวิจัยยุทธศาสตร์เชิงรุกที่มีความประสงค์จะดำเนินกิจกรรมขยายขอบเขตการทำโครงการวิจัยในเรื่องหลักคือ “${data.researchArea}” เพื่อสนับสนุนเป้าหมายยุทธศาสตร์ความเป็นเลิศทางการวิจัยของคณะสังคมศาสตร์
-      </div>
-      <div class="memo-content">
-        ในการนี้ ข้าพเจ้าจึงขอยื่นความจำนงในการขอรับการสนับสนุนบริการตามรายละเอียดดังต่อไปนี้:
-        <br><pre style="font-family: inherit; font-size: 13px; margin: 12px 0 12px 30px; line-height: 1.6; border-left: 2px solid var(--primary); padding-left: 12px;">${data.supportRequired}</pre>
-        หวังเป็นอย่างยิ่งว่าจะได้รับการจัดสรรเพื่อความคล่องตัวในการปฏิบัติงานวิจัยเชิงรุกร่วมกับคณะสังคมศาสตร์
-      </div>
-      <div class="memo-content">จึงเรียนมาเพื่อโปรดพิจารณาความอนุเคราะห์และอนุมัติ</div>
-      <div class="memo-signatures">
-        <p style="margin-bottom: 24px;">(ลงชื่อ)...................................................</p>
-        <p>( ${data.researcherName} )</p>
-        <p>นักวิจัยยุทธศาสตร์เชิงรุก คณะสังคมศาสตร์</p>
-      </div>
-    `;
-  }
+  // else if (service.templateType === 'proactive_support_memo') {
+  //   memoHTML = `
+  //     <div class="memo-title-block">บันทึกข้อความ</div>
+  //     <div class="memo-meta-row"><span class="memo-meta-label">ส่วนงาน:</span><span class="memo-meta-value">${data.affiliation} คณะสังคมศาสตร์ โทร. 053-943528</span></div>
+  //     <div class="memo-meta-row"><span class="memo-meta-label">ที่:</span><span class="memo-meta-value">อว 8393(15.2)/ -</span></div>
+  //     <div class="memo-meta-row"><span class="memo-meta-label">วันที่:</span><span class="memo-meta-value">${getCurrentThaiDate()}</span></div>
+  //     <div class="memo-meta-row"><span class="memo-meta-label">เรื่อง:</span><span class="memo-meta-value">ขอเสนอขอยืมพื้นที่ทำงาน สิ่งอำนวยความสะดวกในการจัดทำยุทธศาสตร์วิจัย</span></div>
+  //     <div class="memo-divider"></div>
+  //     <div class="memo-meta-row"><span class="memo-meta-label">เรียน:</span><span class="memo-meta-value">คณบดีคณะสังคมศาสตร์ มหาวิทยาลัยเชียงใหม่</span></div>
+  //     <div class="memo-content">
+  //       ด้วยข้าพเจ้า ${data.researcherName} สังกัด ${data.affiliation} เป็นนักวิจัยยุทธศาสตร์เชิงรุกที่มีความประสงค์จะดำเนินกิจกรรมขยายขอบเขตการทำโครงการวิจัยในเรื่องหลักคือ “${data.researchArea}” เพื่อสนับสนุนเป้าหมายยุทธศาสตร์ความเป็นเลิศทางการวิจัยของคณะสังคมศาสตร์
+  //     </div>
+  //     <div class="memo-content">
+  //       ในการนี้ ข้าพเจ้าจึงขอยื่นความจำนงในการขอรับการสนับสนุนบริการตามรายละเอียดดังต่อไปนี้:
+  //       <br><pre style="font-family: inherit; font-size: 13px; margin: 12px 0 12px 30px; line-height: 1.6; border-left: 2px solid var(--primary); padding-left: 12px;">${data.supportRequired}</pre>
+  //       หวังเป็นอย่างยิ่งว่าจะได้รับการจัดสรรเพื่อความคล่องตัวในการปฏิบัติงานวิจัยเชิงรุกร่วมกับคณะสังคมศาสตร์
+  //     </div>
+  //     <div class="memo-content">จึงเรียนมาเพื่อโปรดพิจารณาความอนุเคราะห์และอนุมัติ</div>
+  //     <div class="memo-signatures">
+  //       <p style="margin-bottom: 24px;">(ลงชื่อ)...................................................</p>
+  //       <p>( ${data.researcherName} )</p>
+  //       <p>นักวิจัยยุทธศาสตร์เชิงรุก คณะสังคมศาสตร์</p>
+  //     </div>
+  //   `;
+  // }
 
   else if (service.templateType === 'db_update_memo') {
     memoHTML = `
@@ -1656,15 +1656,15 @@ function downloadWordDraft() {
       })
     );
 
-  } else {
-    if (service.templateType === 'page_charge_memo') {
-      signerRole = "อาจารย์/นักวิจัย ผู้ขอเบิก";
-    } else if (service.templateType === 'proactive_support_memo') {
-      signerRole = "นักวิจัยยุทธศาสตร์เชิงรุก คณะสังคมศาสตร์";
-    } else if (service.templateType === 'overhead_memo') {
-      signerName = "คุณณัฐพล พิพัฒนวิชัย";
-      signerRole = "เจ้าหน้าที่การเงินการบัญชีงานวิจัย";
-    }
+  // } else {
+  //   if (service.templateType === 'page_charge_memo') {
+  //     signerRole = "อาจารย์/นักวิจัย ผู้ขอเบิก";
+  //   } else if (service.templateType === 'proactive_support_memo') {
+  //     signerRole = "นักวิจัยยุทธศาสตร์เชิงรุก คณะสังคมศาสตร์";
+  //   } else if (service.templateType === 'overhead_memo') {
+  //     signerName = "คุณณัฐพล พิพัฒนวิชัย";
+  //     signerRole = "เจ้าหน้าที่การเงินการบัญชีงานวิจัย";
+  //   }
 
     docChildren.push(
       new Paragraph({
@@ -1820,7 +1820,7 @@ const CHAT_FLOW = {
     text: "การกำกับดูแลช่วยเหลือ และการให้สิทธิประโยชน์นักวิจัยยุทธศาสตร์ คืองานหลักของเราครับ เลือกความต้องการของคุณได้เลย:",
     options: [
       { text: "⏳ ติดตามโครงการและส่งรายงานความก้าวหน้า (Progress Report) ตามเวลา", serviceId: 9 },
-      { text: "🛡️ คำแนะนำขอบริการสนับสนุนสำหรับ 'นักวิจัยยุทธศาสตร์เชิงรุก'", serviceId: 10 },
+      // { text: "🛡️ คำแนะนำขอบริการสนับสนุนสำหรับ 'นักวิจัยยุทธศาสตร์เชิงรุก'", serviceId: 10 },
       { text: "↩️ ย้อนกลับไปหน้าแรกสุด", nextStep: "start" }
     ]
   }
