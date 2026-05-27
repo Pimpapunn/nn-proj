@@ -150,18 +150,18 @@ body {
   background: var(--bg-app);
   
   /* Gradient variables (Light Mode) */
-  --blob-1-gradient: radial-gradient(circle, hsla(198, 95%, 72%, 0.85) 0%, hsla(215, 90%, 55%, 0.5) 50%, hsla(220, 95%, 35%, 0) 100%);
-  --blob-2-gradient: radial-gradient(circle, hsla(185, 95%, 68%, 0.85) 0%, hsla(202, 90%, 50%, 0.5) 50%, hsla(205, 95%, 32%, 0) 100%);
-  --blob-3-gradient: radial-gradient(circle, hsla(210, 98%, 78%, 0.85) 0%, hsla(220, 85%, 58%, 0.5) 50%, hsla(222, 95%, 32%, 0) 100%);
-  --blob-4-gradient: radial-gradient(circle, hsla(190, 95%, 68%, 0.85) 0%, hsla(198, 90%, 46%, 0.5) 50%, hsla(200, 95%, 28%, 0) 100%);
+  --blob-1-gradient: radial-gradient(circle, hsla(210, 95%, 85%, 0.85) 0%, hsla(205, 90%, 75%, 0.6) 50%, hsla(220, 95%, 55%, 0) 100%);
+  --blob-2-gradient: radial-gradient(circle, hsla(195, 95%, 82%, 0.85) 0%, hsla(190, 90%, 70%, 0.6) 50%, hsla(205, 95%, 52%, 0) 100%);
+  --blob-3-gradient: radial-gradient(circle, hsla(215, 98%, 88%, 0.85) 0%, hsla(210, 85%, 78%, 0.6) 50%, hsla(222, 95%, 52%, 0) 100%);
+  --blob-4-gradient: radial-gradient(circle, hsla(200, 95%, 82%, 0.85) 0%, hsla(195, 90%, 68%, 0.6) 50%, hsla(200, 95%, 48%, 0) 100%);
 }
 
 body.dark-mode .animated-bg {
   /* Gradient variables (Dark Mode) */
-  --blob-1-gradient: radial-gradient(circle, hsla(200, 90%, 62%, 0.75) 0%, hsla(218, 85%, 42%, 0.4) 50%, hsla(220, 90%, 18%, 0) 100%);
-  --blob-2-gradient: radial-gradient(circle, hsla(190, 90%, 58%, 0.75) 0%, hsla(202, 85%, 38%, 0.4) 50%, hsla(205, 90%, 14%, 0) 100%);
-  --blob-3-gradient: radial-gradient(circle, hsla(212, 95%, 68%, 0.75) 0%, hsla(220, 80%, 48%, 0.4) 50%, hsla(222, 90%, 16%, 0) 100%);
-  --blob-4-gradient: radial-gradient(circle, hsla(185, 90%, 58%, 0.75) 0%, hsla(198, 90%, 35%, 0.4) 50%, hsla(200, 90%, 12%, 0) 100%);
+  --blob-1-gradient: radial-gradient(circle, hsla(210, 90%, 72%, 0.7) 0%, hsla(205, 85%, 52%, 0.4) 50%, hsla(220, 90%, 28%, 0) 100%);
+  --blob-2-gradient: radial-gradient(circle, hsla(195, 90%, 68%, 0.7) 0%, hsla(190, 85%, 48%, 0.4) 50%, hsla(205, 90%, 24%, 0) 100%);
+  --blob-3-gradient: radial-gradient(circle, hsla(215, 95%, 78%, 0.7) 0%, hsla(210, 80%, 58%, 0.4) 50%, hsla(222, 90%, 26%, 0) 100%);
+  --blob-4-gradient: radial-gradient(circle, hsla(200, 90%, 68%, 0.7) 0%, hsla(195, 90%, 45%, 0.4) 50%, hsla(200, 90%, 22%, 0) 100%);
 }
 
 .bg-blob {
@@ -183,7 +183,7 @@ body.dark-mode .bg-blob {
   width: 480px;
   height: 480px;
   background: var(--blob-1-gradient);
-  animation: moveBlob1 24s infinite alternate ease-in-out;
+  animation: moveBlob1 14s infinite alternate ease-in-out;
 }
 
 .blob-2 {
@@ -192,8 +192,8 @@ body.dark-mode .bg-blob {
   width: 520px;
   height: 520px;
   background: var(--blob-2-gradient);
-  animation: moveBlob2 28s infinite alternate ease-in-out;
-  animation-delay: -6s;
+  animation: moveBlob2 16s infinite alternate ease-in-out;
+  animation-delay: -3s;
 }
 
 .blob-3 {
@@ -202,8 +202,8 @@ body.dark-mode .bg-blob {
   width: 420px;
   height: 420px;
   background: var(--blob-3-gradient);
-  animation: moveBlob3 22s infinite alternate ease-in-out;
-  animation-delay: -12s;
+  animation: moveBlob3 13s infinite alternate ease-in-out;
+  animation-delay: -6s;
 }
 
 .blob-4 {
@@ -212,8 +212,8 @@ body.dark-mode .bg-blob {
   width: 460px;
   height: 460px;
   background: var(--blob-4-gradient);
-  animation: moveBlob4 26s infinite alternate ease-in-out;
-  animation-delay: -18s;
+  animation: moveBlob4 15s infinite alternate ease-in-out;
+  animation-delay: -9s;
 }
 
 @keyframes moveBlob1 {
@@ -401,6 +401,24 @@ body.dark-mode .main-header {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.header-logo-img {
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.soc-logo {
+  height: 60px;
+}
+
+.cmu-logo {
+  height: 46px;
+}
+
+.header-logo-img:hover {
+  transform: scale(1.05);
 }
 
 .cmu-btn {
