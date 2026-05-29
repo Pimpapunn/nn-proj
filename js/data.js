@@ -423,7 +423,7 @@ const RESEARCH_DATA = {
         { name: 'databaseType', label: 'ฐานข้อมูลและอันดับวารสาร (เช่น Scopus Q1, TCI 1)', type: 'text', placeholder: 'Scopus Quartile 2 (SJR)' },
         { name: 'amountRequested', label: 'จำนวนเงินที่ขอเบิกจ่ายสนับสนุน (บาท)', type: 'number', placeholder: '35000' }
       ]
-    },ห
+    },
     {
       id: 9,
       number: '9',
