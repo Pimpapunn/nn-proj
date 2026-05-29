@@ -375,7 +375,7 @@ const RESEARCH_DATA = {
         { name: 'bankAccountNo', label: 'เลขที่บัญชีโครงการวิจัยรับเงินโอน', type: 'text', placeholder: '408-2-34982-1' }
       ]
     },
-    {
+       {
       id: 8,
       number: '8',
       title: 'การเบิกจ่ายค่าตอบแทนผลงานวิชาการฯ และค่าตีพิมพ์ฯ (Article Processing Charge)',
@@ -423,10 +423,59 @@ const RESEARCH_DATA = {
         { name: 'databaseType', label: 'ฐานข้อมูลและอันดับวารสาร (เช่น Scopus Q1, TCI 1)', type: 'text', placeholder: 'Scopus Quartile 2 (SJR)' },
         { name: 'amountRequested', label: 'จำนวนเงินที่ขอเบิกจ่ายสนับสนุน (บาท)', type: 'number', placeholder: '35000' }
       ]
-    },
+    },ห
     {
       id: 9,
       number: '9',
+      title: 'การเบิกจ่ายค่าตอบแทนการตีพิมพ์บทความประเภท Review article และผลงานทางวิชาการในวารสาร Natural and Life Sciences Communications',
+      shortTitle: 'การเบิกค่าตอบแทนการตีพิมพ์บทความประเภท Review article และผลงานทางวิชาการในวารสาร Natural and Life Sciences Communications',
+      category: 'finance',
+      icon: 'publish',
+      summary: 'การดำเนินการขอรับค่าตอบแทนการตีพิมพ์บทความประเภท Review article และผลงานทางวิชาการในวารสาร Natural and Life Sciences Communications ',
+      objective: 'เพื่อขอรับเงินรางวัลสนับสนุนเผยแพร่ผลงานวิจัยระดับชาติ/นานาชาติ และค่า Page Charge ตามแบบฟอร์มเอกสารที่มีการแก้ไขล่าสุด',
+      
+      researcherSteps: [
+        { step: 1, desc: 'ตรวจสอบหลักเกณฑ์และอัตราการเบิกจ่ายค่าตอบแทนผลงานฯและค่าตีพิมพ์ของมหาวิทยาลัย' },
+        { step: 2, desc: 'จัดเตรียมเอกสารบทความตีพิมพ์ฉบับสมบูรณ์ (Reprint) และหน้าแสดง Quartile/Percentile ของวารสารอ้างอิง' },
+        { step: 3, desc: 'กรณีขอค่า Page Charge/APC ให้ใช้เอกสาร "แบบฟอร์มขอรับค่าตีพิมพ์ผลงานทางวิชาการ (Article Processing Charge, APC)"' },
+        { step: 4, desc: 'กรณีขอรับเงินค่าตอบแทนผลงานวิชาการฯ ให้ใช้เอกสาร "แบบฟอร์มขอรับเงินค่าตอบแทนผลงานฯ"' }
+      ],
+
+      staffSteps: [
+        { step: 1, desc: 'ตรวจสอบฐานข้อมูลผลงานวิชาการของผู้ยื่นขอรับ และตรวจสอบรายละเอียดค่าตีพิมพ์/ค่าตอบแแทนผลงานวิชาการฯ ตามอัตราการเบิกจ่ายของมหาวิทยาลัย' },
+        { step: 2, desc: 'ตรวจสอบความถูกต้องของแบบฟอร์มขอรับเงินค่าตีพิมพ์ APC หรือแบบฟอร์มขอค่าตอบแทนผลงานวิชาการฯ' },
+        { step: 3, desc: 'เสนอเรื่องไปยังสำนักงานบริหารงานวิจัย (สบว.)' },
+        { step: 4, desc: 'สำนักงานบริหารงานวิจัย (สบว.) พิจารณาและแจ้งผลผ่านระบบ e-document >> งานบริหารงานวิจัยฯ จะดำเนินการแจ้งผู้ขอรับค่าตอบแทน/ตีพิมพ์ฯ (ผ่านภาควิชาฯ) ' },
+        { step: 5, desc: 'บันทึกข้อมูลผลงานวิชาการและข้อมูลการเบิกจ่ายในระบบ CMU-Research เพื่อดำเนินการเบิกจ่ายผ่านระบบฯ' }
+      ],
+
+      documents: [
+        { name: 'แบบฟอร์ม-คำขอรับเงิน-APC-19-04-66.docx', type: 'doc', status: 'จำเป็นกรณีขอค่าตีพิมพ์' },
+        { name: 'แบบฟอร์ม-คำขอรับเงิน-ค่าตอบแทน-19-04-66.docx', type: 'doc', status: 'จำเป็นกรณีขอรับค่าตอบแทน' },
+        { name: 'สำเนาบทความวิชาการตีพิมพ์ฉบับสมบูรณ์ (Reprint) แสดงรายละเอียดผู้เขียนและชื่อสังกัดคณะสังคมศาสตร์ มช.', type: 'pdf', status: 'จำเป็น' },
+        { name: 'หลักฐานตรวจสอบค่า Quartile / SJR Ranking ของวารสารระดับนานาชาติ หรือใบรับรองผลงาน TCI', type: 'pdf', status: 'จำเป็น' }
+      ],
+
+      systems: [
+        { name: 'ระบบฐานข้อมูล e-research คณะสังคมศาสตร์', url: '#', usage: 'ลงบันทึกข้อมูลรายละเอียดสิ่งพิมพ์วิจัยของบุคลากรสายวิชาการในคณะสังคมศาสตร์' }
+      ],
+
+      tips: 'การยื่นขอเบิกจ่ายค่าตีพิมพ์ (APC) และค่าตอบแทนเผยแพร่ผลงาน จะต้องดาวน์โหลดและเขียนรายละเอียดลงในแบบฟอร์มฉบับแก้ไขล่าสุด (ลงวันที่ 19 เมษายน 2566) ที่แนบไว้ให้เท่านั้น เพื่อความถูกต้องในการพิจารณาของคณะกรรมการคลังวิจัย',
+      
+      hasTemplate: true,
+      templateType: 'page_charge_memo',
+      templateFields: [
+        { name: 'researcherName', label: 'ชื่อ-สกุล ผู้นำเสนอขอเบิก', type: 'text', placeholder: 'ผศ. นพพล สังคมศาสตร์' },
+        { name: 'department', label: 'ภาควิชาที่สังกัด', type: 'text', placeholder: 'ภาควิชาสังคมวิทยาและมานุษยวิทยา' },
+        { name: 'articleTitle', label: 'ชื่อบทความวิชาการ (อังกฤษ/ไทย)', type: 'text', placeholder: 'Social Change and Livelihoods in Chiang Mai City...' },
+        { name: 'journalName', label: 'ชื่อวารสารวิชาการที่ได้รับการตอบรับตีพิมพ์', type: 'text', placeholder: 'Journal of Social Sciences Lanna' },
+        { name: 'databaseType', label: 'ฐานข้อมูลและอันดับวารสาร (เช่น Scopus Q1, TCI 1)', type: 'text', placeholder: 'Scopus Quartile 2 (SJR)' },
+        { name: 'amountRequested', label: 'จำนวนเงินที่ขอเบิกจ่ายสนับสนุน (บาท)', type: 'number', placeholder: '35000' }
+      ]
+    },
+    {
+      id: 10,
+      number: '10',
       title: 'จัดทำเอกสารการส่งเงินสมทบกองทุนสนับสนุนการวิจัย',
       shortTitle: 'จัดทำเอกสารส่งเงินสมทบกองทุนวิจัย',
       category: 'finance',
@@ -471,8 +520,8 @@ const RESEARCH_DATA = {
       ]
     },
     {
-      id: 10,
-      number: '10',
+      id: 11,
+      number: '11',
       title: 'ติดตามโครงการวิจัยและนำส่งรายงานความก้าวหน้า',
       shortTitle: 'ติดตามและนำส่งรายงานความก้าวหน้า',
       category: 'operation',
@@ -563,8 +612,8 @@ const RESEARCH_DATA = {
     //   ]
     // },
     {
-      id: 11,
-      number: '11',
+      id: 12,
+      number: '12',
       title: 'การบันทึกข้อมูลโครงการวิจัยในระบบ CMU Research และ e-research',
       shortTitle: 'การบันทึกฐานข้อมูลระบบ มช. และคณะ',
       category: 'initiation',
