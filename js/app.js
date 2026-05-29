@@ -41,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSearch();
   initModalEvents();
   initChatBot();
+  initContactForm();
 });
 
 /* ==========================================================================
@@ -1939,3 +1940,62 @@ function renderStaff() {
     </article>
   `).join('');
 }
+
+/* ==========================================================================
+   9. DIRECT CONTACT FORM LOGIC
+   ========================================================================== */
+function initContactForm() {
+  const form = document.getElementById('directContactForm');
+  if (!form) return;
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const message = document.getElementById('contactMessage').value.trim();
+
+    if (!name || !email || !message) {
+      alert('กรุณากรอกข้อมูลให้ครบถ้วนทุกช่องครับ');
+      return;
+    }
+
+    const recipient = 'rais.soc.pim@gmail.com';
+    const subject = encodeURIComponent(`[งานบริหารงานวิจัยฯ] ติดต่อสอบถามจากคุณ ${name}`);
+    
+    const bodyText = `เรียน เจ้าหน้าที่งานบริหารงานวิจัยฯ คณะสังคมศาสตร์ มช.
+
+เรื่อง: ติดต่อสอบถามและปรึกษาข้อหารือเพิ่มเติม
+
+ข้อมูลผู้ติดต่อ:
+- ชื่อ-สกุล: ${name}
+- อีเมลติดต่อกลับ: ${email}
+
+ข้อความรายละเอียด:
+${message}
+
+--------------------------------------------------
+ส่งผ่านระบบแนะนำขั้นตอนการบริหารงานวิจัยฯ (Research Administration Portal)`;
+
+    const body = encodeURIComponent(bodyText);
+
+    // เปิดเมลไคลเอนต์หลักของผู้ใช้
+    window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
+
+    // เอฟเฟกต์ตอบรับบนปุ่มส่ง
+    const btnSubmit = document.getElementById('btnSubmitContact');
+    const originalText = btnSubmit.innerHTML;
+    
+    btnSubmit.style.background = 'var(--success)';
+    btnSubmit.innerHTML = `<span>ส่งข้อมูลสำเร็จแล้ว!</span><span class="material-icons" style="margin-left: 8px;">done</span>`;
+    btnSubmit.disabled = true;
+
+    setTimeout(() => {
+      form.reset();
+      btnSubmit.style.background = '';
+      btnSubmit.innerHTML = originalText;
+      btnSubmit.disabled = false;
+    }, 3000);
+  });
+}
+
