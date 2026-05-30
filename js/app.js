@@ -1932,7 +1932,6 @@ function renderStaff() {
           <span class="material-icons">phone</span>
           <span>${staff.phone}</span>
         </a>
-        <a href="mailto:${staff.email}" class="staff-link-item">
           <span class="material-icons">mail</span>
           <span>${staff.email}</span>
         </a>
@@ -1980,8 +1979,7 @@ ${message}
     const body = encodeURIComponent(bodyText);
 
     // เปิดเมลไคลเอนต์หลักของผู้ใช้
-    window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
-fetch('http://localhost:3000/api/contact', {
+fetch('http://localhost:3001/api/contact', {
     method: 'POST',
     headers: {
         'Content-Type': 'application/json'
@@ -1995,14 +1993,33 @@ fetch('http://localhost:3000/api/contact', {
 .then(res => res.json())
 .then(data => {
 
+// เอฟเฟกต์ตอบรับบนปุ่มส่ง
     if(data.success){
 
-        alert('ส่งข้อความเรียบร้อยแล้ว');
+    const btnSubmit = document.getElementById('btnSubmitContact');
+    const originalText = btnSubmit.innerHTML;
 
-    }else{
+    btnSubmit.style.background = 'var(--success)';
+    btnSubmit.innerHTML =
+      `<span>ส่งข้อมูลสำเร็จแล้ว!</span>
+       <span class="material-icons" style="margin-left:8px;">done</span>`;
 
-        alert('ส่งไม่สำเร็จ');
-    }
+    btnSubmit.disabled = true;
+
+    alert('ส่งข้อความเรียบร้อยแล้ว');
+
+    setTimeout(() => {
+        form.reset();
+        btnSubmit.style.background = '';
+        btnSubmit.innerHTML = originalText;
+        btnSubmit.disabled = false;
+    }, 3000);
+
+}else{
+
+    alert('ส่งไม่สำเร็จ');
+
+}
 
 })
 .catch(err => {
@@ -2012,20 +2029,7 @@ fetch('http://localhost:3000/api/contact', {
     alert('เกิดข้อผิดพลาด');
 
 });
-    // เอฟเฟกต์ตอบรับบนปุ่มส่ง
-    const btnSubmit = document.getElementById('btnSubmitContact');
-    const originalText = btnSubmit.innerHTML;
     
-    btnSubmit.style.background = 'var(--success)';
-    btnSubmit.innerHTML = `<span>ส่งข้อมูลสำเร็จแล้ว!</span><span class="material-icons" style="margin-left: 8px;">done</span>`;
-    btnSubmit.disabled = true;
-
-    setTimeout(() => {
-      form.reset();
-      btnSubmit.style.background = '';
-      btnSubmit.innerHTML = originalText;
-      btnSubmit.disabled = false;
-    }, 3000);
   });
 }
 
