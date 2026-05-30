@@ -1981,7 +1981,37 @@ ${message}
 
     // เปิดเมลไคลเอนต์หลักของผู้ใช้
     window.location.href = `mailto:${recipient}?subject=${subject}&body=${body}`;
+fetch('http://localhost:3000/api/contact', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        name,
+        email,
+        message
+    })
+})
+.then(res => res.json())
+.then(data => {
 
+    if(data.success){
+
+        alert('ส่งข้อความเรียบร้อยแล้ว');
+
+    }else{
+
+        alert('ส่งไม่สำเร็จ');
+    }
+
+})
+.catch(err => {
+
+    console.error(err);
+
+    alert('เกิดข้อผิดพลาด');
+
+});
     // เอฟเฟกต์ตอบรับบนปุ่มส่ง
     const btnSubmit = document.getElementById('btnSubmitContact');
     const originalText = btnSubmit.innerHTML;
