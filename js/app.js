@@ -985,6 +985,15 @@ function downloadWordDraft() {
     docChildren.push(headerTable);
     docChildren.push(new Paragraph({ spacing: { after: 120 } }));
 
+    const dottedBorder = {
+      bottom: {
+        color: "000000",
+        space: 6,
+        value: BorderStyle.DOTTED,
+        size: 6,
+      }
+    };
+
     // ส่วนงาน
     let deptString = "";
     if (service.templateType === 'overhead_memo') {
@@ -999,6 +1008,7 @@ function downloadWordDraft() {
 
     docChildren.push(
       new Paragraph({
+        border: dottedBorder,
         children: [
           new TextRun({ text: "ส่วนงาน  ", bold: true, size: 32, font: "TH Sarabun New" }),
           new TextRun({ text: deptString, size: 32, font: "TH Sarabun New" }),
@@ -1010,6 +1020,7 @@ function downloadWordDraft() {
     // ที่ และ วันที่
     docChildren.push(
       new Paragraph({
+        border: dottedBorder,
         tabStops: [{ type: window.docx.TabStopType.LEFT, position: 4500 }],
         children: [
           new TextRun({ text: "ที่  ", bold: true, size: 32, font: "TH Sarabun New" }),
@@ -1049,14 +1060,7 @@ function downloadWordDraft() {
 
     docChildren.push(
       new Paragraph({
-        border: {
-          bottom: {
-            color: "000000",
-            space: 8,
-            value: BorderStyle.SINGLE,
-            size: 12,
-          }
-        },
+        border: dottedBorder,
         children: [
           new TextRun({ text: "เรื่อง  ", bold: true, size: 32, font: "TH Sarabun New" }),
           new TextRun({ text: subjectString, size: 32, font: "TH Sarabun New" }),
@@ -1094,7 +1098,7 @@ function downloadWordDraft() {
   const pStyle = {
     alignment: AlignmentType.JUSTIFIED,
     indent: { firstLine: 720 }, // ย่อหน้า 1.25 ซม. (720 dxa)
-    spacing: { after: 120, line: 360 }, // ระยะห่าง 6pt และ Line Spacing 1.5
+    spacing: { after: 120, line: 567 }, // ระยะห่าง 6pt และ Line Spacing ~1.0 cm (567 dxa)
   };
 
   if (service.templateType === 'proposal_memo') {
@@ -1256,7 +1260,7 @@ function downloadWordDraft() {
     docChildren.push(
       new Paragraph({
         ...pStyle,
-        spacing: { before: 120, after: 120, line: 360 },
+        spacing: { before: 120, after: 120, line: 567 },
         children: [
           new TextRun({
             text: "จึงเรียนมาเพื่อโปรดพิจารณาอนุมัติให้เปิดบัญชีเงินฝากออมทรัพย์ในชื่อโครงการดังกล่าว",
@@ -1562,7 +1566,7 @@ function downloadWordDraft() {
     docChildren.push(
       new Paragraph({
         ...pStyle,
-        spacing: { before: 120, after: 120, line: 360 },
+        spacing: { before: 120, after: 120, line: 567 },
         children: [
           new TextRun({
             text: "หวังเป็นอย่างยิ่งว่าจะได้รับการจัดสรรเพื่อความคล่องตัวในการปฏิบัติงานวิจัยเชิงรุกร่วมกับคณะสังคมศาสตร์",

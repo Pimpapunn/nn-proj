@@ -1516,6 +1516,7 @@ body.dark-mode .widget-tips {
   text-align: justify;
   text-indent: 2.5em;
   margin-bottom: 20px;
+  line-height: 2.2; /* ปรับระยะบรรทัดประมาณ 1.0 ซม. */
 }
 
 .memo-signatures {
