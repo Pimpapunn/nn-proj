@@ -477,7 +477,7 @@ body.dark-mode .main-header {
    HERO / BANNER SECTION
    ========================================================================== */
 .hero-section {
-  padding: 80px 0 60px 0;
+  padding: 48px 0 36px 0;
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -512,21 +512,21 @@ body.dark-mode .main-header {
   gap: 8px;
   background: var(--primary-light);
   color: var(--primary);
-  padding: 6px 16px;
+  padding: 5px 14px;
   border-radius: 100px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  margin-bottom: 24px;
+  margin-bottom: 14px;
   font-family: var(--font-heading);
   border: 1px solid rgba(111, 44, 145, 0.1);
 }
 
 .hero-section h2 {
-  font-size: 42px;
+  font-size: 30px;
   font-weight: 700;
   color: var(--primary);
-  margin-bottom: 16px;
-  line-height: 1.25;
+  margin-bottom: 10px;
+  line-height: 1.2;
 }
 
 body.dark-mode .hero-section h2 {
@@ -546,29 +546,29 @@ body.dark-mode .hero-section h2 span {
 }
 
 .hero-subtitle {
-  font-size: 18px;
+  font-size: 15px;
   color: var(--text-muted);
   max-width: 780px;
-  margin: 0 auto 40px auto;
+  margin: 0 auto 24px auto;
 }
 
 /* ==========================================================================
    SMART SEARCH & CLASSIFICATION TABS
    ========================================================================== */
 .search-hub-wrapper {
-  max-width: 800px;
-  margin: 0 auto 48px auto;
+  max-width: 720px;
+  margin: 0 auto 32px auto;
 }
 
 .search-box {
   display: flex;
   align-items: center;
-  padding: 8px 12px 8px 24px;
+  padding: 6px 10px 6px 18px;
   background: var(--bg-card);
   border: 2px solid var(--border-card);
   box-shadow: var(--shadow-md);
   border-radius: 50px;
-  gap: 16px;
+  gap: 12px;
   transition: var(--transition-smooth);
 }
 
@@ -578,7 +578,7 @@ body.dark-mode .hero-section h2 span {
 }
 
 .search-icon {
-  font-size: 24px;
+  font-size: 20px;
   color: var(--primary);
 }
 
@@ -588,7 +588,7 @@ body.dark-mode .hero-section h2 span {
   outline: none;
   background: transparent;
   font-family: var(--font-body);
-  font-size: 18px;
+  font-size: 15px;
   color: var(--text-main);
 }
 
@@ -616,28 +616,28 @@ body.dark-mode .hero-section h2 span {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 48px;
+  gap: 8px;
+  margin-bottom: 32px;
 }
 
 .category-row {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
 }
 
 .tab-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 24px;
+  gap: 7px;
+  padding: 8px 16px;
   background: var(--bg-card);
   border: 1px solid var(--border-card);
   border-radius: 50px;
   color: var(--text-muted);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 500;
   box-shadow: var(--shadow-sm);
   transition: var(--transition-smooth);
@@ -657,7 +657,7 @@ body.dark-mode .hero-section h2 span {
 }
 
 .tab-btn .material-icons {
-  font-size: 20px;
+  font-size: 16px;
 }
 
 /* ==========================================================================
@@ -1516,7 +1516,8 @@ body.dark-mode .widget-tips {
   text-align: justify;
   text-indent: 2.5em;
   margin-bottom: 20px;
-  line-height: 2.2; /* ปรับระยะบรรทัดประมาณ 1.0 ซม. */
+  line-height: 2.2;
+  /* ปรับระยะบรรทัดประมาณ 1.0 ซม. */
 }
 
 .memo-signatures {
@@ -1743,7 +1744,8 @@ body.dark-mode .widget-tips {
 /* Chatting Body State */
 .assistant-chat-body {
   flex: 1;
-  display: none; /* hidden until started */
+  display: none;
+  /* hidden until started */
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
@@ -1814,10 +1816,10 @@ body.dark-mode .widget-tips {
 .chat-option-btn {
   background: var(--bg-card);
   border: 1px solid var(--border-card);
-  padding: 10px 16px;
+  padding: 8px 14px;
   border-radius: 50px;
   text-align: left;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--text-main);
   display: flex;
   align-items: center;
@@ -1835,7 +1837,7 @@ body.dark-mode .widget-tips {
 }
 
 .chat-option-btn span {
-  font-size: 16px;
+  font-size: 14px;
 }
 
 /* ==========================================================================
@@ -3165,16 +3167,17 @@ body.dark-mode .btn-submit-premium {
 }
 
 @media (max-width: 600px) {
+
   .contact-info-column,
   .contact-form-column {
     padding: 24px;
   }
-  
+
   .info-item-group {
     grid-template-columns: 1fr;
     gap: 16px;
   }
-  
+
   .section-title-premium {
     font-size: 26px;
   }
