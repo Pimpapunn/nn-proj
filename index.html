@@ -61,6 +61,10 @@
           title="สลับโหมดหน้าจอ (มืด/สว่าง)">
           <span class="material-icons" id="themeIcon">dark_mode</span>
         </button>
+        <button class="lang-toggle" id="langToggleBtn" aria-label="Switch Language (TH/EN)"
+          title="Switch Language (TH/EN)">
+          <span id="langText">EN</span>
+        </button>
       </div>
     </div>
   </header>
@@ -122,22 +126,41 @@
          INTERACTIVE ASSISTANT (CHAT/WIZARD)
          ========================================================================== -->
     <section class="assistant-section" id="assistantSection">
-      <div class="container">
-        <div class="assistant-panel glass-panel">
-          <div class="assistant-intro-column">
-            <div class="assistant-avatar-large">🕵️‍♂️</div>
-            <h3>พี่วิจัย SOC ยินดีต้อนรับ</h3>
-            <p>หากคุณไม่แน่ใจว่าต้องใช้บริการในหัวข้อใด หรือต้องการเตรียมเอกสารแบบใด ลองถามตอบสั้นๆ
-              เพื่อให้พี่วิจัยค้นหาคำตอบและบริการที่เหมาะกับสถานะปัจจุบันของคุณได้ทันที!</p>
-          </div>
+      <!-- Floating Action Button -->
+      <button class="chat-floating-btn" id="chatFloatingBtn" aria-label="เปิดผู้ช่วยงานวิจัย">
+        <span class="material-icons">chat</span>
+        <span class="chat-btn-text" id="chatBtnText">ผู้ช่วยงานวิจัย</span>
+        <span class="chat-tooltip" id="chatTooltipText">มีอะไรให้ช่วย? 👋</span>
+      </button>
 
-          <div class="assistant-chat-column">
-            <div class="chat-box-area" id="chatBoxArea">
-              <!-- Dynamically Injected Chat Bubbles -->
-            </div>
-            <div class="chat-options-area" id="chatOptionsArea">
-              <!-- Dynamically Injected Choice Buttons -->
-            </div>
+      <!-- Chat Container -->
+      <div class="assistant-panel glass-panel" id="assistantPanel">
+        <!-- Header -->
+        <div class="assistant-header">
+          <div class="assistant-header-title">
+            <span class="material-icons">support_agent</span>
+            <h3 id="chatPanelHeaderTitle">ผู้ช่วยงานวิจัย</h3>
+          </div>
+          <button class="close-chat-btn" id="closeChatBtn" aria-label="ปิดผู้ช่วยงานวิจัย">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+
+        <!-- Body: Welcome Screen State -->
+        <div class="assistant-welcome-screen" id="assistantWelcomeScreen">
+          <div class="welcome-avatar">🕵️‍♂️</div>
+          <h4 id="chatWelcomeTitleText">มีอะไรให้ช่วย?</h4>
+          <p id="chatWelcomeDescText">หากคุณไม่แน่ใจว่าต้องใช้บริการในหัวข้อใด หรือต้องการเตรียมเอกสารแบบใด ลองถามตอบเพื่อหาบริการที่เหมาะกับคุณได้ทันที</p>
+          <button class="start-chat-btn" id="startChatBtn">เริ่มต้นใช้งาน</button>
+        </div>
+
+        <!-- Body: Active Chatting State -->
+        <div class="assistant-chat-body" id="assistantChatBody">
+          <div class="chat-box-area" id="chatBoxArea">
+            <!-- Dynamically Injected Chat Bubbles -->
+          </div>
+          <div class="chat-options-area" id="chatOptionsArea">
+            <!-- Dynamically Injected Choice Buttons -->
           </div>
         </div>
       </div>
@@ -238,11 +261,11 @@
               </div>
               <div class="staff-welcome-content">
                 <h4>เจ้าหน้าที่งานบริหารงานวิจัยและวิเทศสัมพันธ์</h4>
-                <p>พวกเรายินดีให้คำปรึกษา แนะนำขั้นตอนการเตรียมเอกสาร และอำนวยความสะดวกในทุกกระบวนงานวิจัยของคณาจารย์และนักวิจัยคณะสังคมศาสตร์ทุกท่านครับ</p>
+                <p>พวกเรายินดีให้คำปรึกษา แนะนำขั้นตอนการเตรียมเอกสาร และอำนวยความสะดวกในทุกกระบวนงานวิจัยของคณาจารย์และนักวิจัยคณะสังคมศาสตร์ทุกท่าน</p>
                 <div class="staff-features-badges">
                   <span class="badge-item"><span class="material-icons badge-icon">verified</span>แนะนำขั้นตอน</span>
                   <span class="badge-item"><span class="material-icons badge-icon">border_color</span>ช่วยเตรียมเอกสาร</span>
-                  <span class="badge-item"><span class="material-icons badge-icon">payments</span>ประสานเบิกจ่าย</span>
+                  <span class="badge-item"><span class="material-icons badge-icon">payments</span>ประสานการเบิกจ่าย</span>
                 </div>
               </div>
             </div>
@@ -528,6 +551,7 @@
   <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
   <script src="js/garuda_base64.js"></script>
   <script src="js/data.js"></script>
+  <script src="js/translations.js"></script>
   <script src="js/app.js"></script>
 </body>
 

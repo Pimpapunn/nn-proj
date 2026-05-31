@@ -13,6 +13,7 @@ let activeService = null;
 let activeModalTab = 'workflow';
 let chatHistory = [];
 let currentChatStep = 'start';
+let currentLang = localStorage.getItem('lang') || 'th';
 
 // รายการไฟล์ที่มีในโฟลเดอร์ data_research
 const AVAILABLE_RESEARCH_FILES = [
@@ -35,12 +36,13 @@ const AVAILABLE_RESEARCH_FILES = [
 // โหลดระบบเมื่อหน้าเว็บพร้อม
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  initLanguage();
   renderCategories();
   renderServices();
   renderStaff();
   initSearch();
   initModalEvents();
-  initChatBot();
+  initChatEvents();
   initContactForm();
 });
 
@@ -75,6 +77,224 @@ function initTheme() {
   });
 }
 
+function getActiveData() {
+  return currentLang === 'en' ? RESEARCH_DATA_EN : RESEARCH_DATA;
+}
+
+function initLanguage() {
+  const langToggleBtn = document.getElementById('langToggleBtn');
+  const langText = document.getElementById('langText');
+  
+  if (langToggleBtn && langText) {
+    langToggleBtn.addEventListener('click', toggleLanguage);
+  }
+  updateLanguageUI();
+}
+
+function toggleLanguage() {
+  currentLang = currentLang === 'th' ? 'en' : 'th';
+  localStorage.setItem('lang', currentLang);
+  updateLanguageUI();
+}
+
+function updateLanguageUI() {
+  const langText = document.getElementById('langText');
+  if (langText) {
+    langText.textContent = currentLang === 'th' ? 'EN' : 'TH';
+  }
+  
+  const dict = TRANSLATIONS[currentLang];
+  if (!dict) return;
+  
+  document.documentElement.lang = currentLang;
+  
+  const logoH1 = document.querySelector('.logo-text h1');
+  if (logoH1) logoH1.textContent = dict.portal_title;
+  const logoSpan = document.querySelector('.logo-text span');
+  if (logoSpan) logoSpan.textContent = dict.portal_subtitle;
+  
+  const heroBadge = document.querySelector('.badge-tag span:nth-child(2)');
+  if (heroBadge) heroBadge.textContent = dict.hero_tag;
+  const heroH2 = document.querySelector('.hero-section h2');
+  if (heroH2) {
+    heroH2.innerHTML = `${dict.hero_title} <span class="accent-text">${dict.hero_title_accent}</span>`;
+  }
+  const heroSub = document.querySelector('.hero-subtitle');
+  if (heroSub) heroSub.textContent = dict.hero_subtitle;
+  
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) searchInput.placeholder = dict.search_placeholder;
+  const clearSearchBtn = document.getElementById('clearSearchBtn');
+  if (clearSearchBtn) clearSearchBtn.title = dict.clear_search;
+  
+  const relatedH3 = document.querySelector('.quick-portal-section .section-header h3');
+  if (relatedH3) relatedH3.textContent = dict.related_systems_title;
+  const relatedP1 = document.querySelector('.quick-portal-section .section-header p:nth-of-type(1)');
+  if (relatedP1) relatedP1.textContent = dict.related_systems_desc_th;
+  const relatedP2 = document.querySelector('.quick-portal-section .section-header p:nth-of-type(2)');
+  if (relatedP2) relatedP2.textContent = dict.related_systems_desc_en;
+  
+  const portalCards = document.querySelectorAll('.portal-card');
+  if (portalCards.length >= 4) {
+    portalCards[0].querySelector('h3').textContent = dict.cmu_research_title;
+    portalCards[0].querySelector('p').textContent = dict.cmu_research_desc;
+    portalCards[1].querySelector('h3').textContent = dict.edoc_title;
+    portalCards[1].querySelector('p').textContent = dict.edoc_desc;
+    portalCards[2].querySelector('h3').textContent = dict.eresearch_title;
+    portalCards[2].querySelector('p').textContent = dict.eresearch_desc;
+    portalCards[3].querySelector('h3').textContent = dict.gdrive_title;
+    portalCards[3].querySelector('p').textContent = dict.gdrive_desc;
+  }
+  
+  const contactH2 = document.querySelector('.direct-contact-section .section-header h2');
+  if (contactH2) contactH2.textContent = dict.contact_title;
+  const contactSub = document.querySelector('.direct-contact-section .section-header p');
+  if (contactSub) contactSub.textContent = dict.contact_subtitle;
+  
+  const staffTitle = document.querySelector('.contact-info-column .column-title');
+  if (staffTitle) staffTitle.textContent = dict.staff_title;
+  const staffH4 = document.querySelector('.staff-welcome-content h4');
+  if (staffH4) staffH4.textContent = dict.staff_dept;
+  const staffP = document.querySelector('.staff-welcome-content p');
+  if (staffP) staffP.textContent = dict.staff_desc;
+  
+  const badges = document.querySelectorAll('.staff-features-badges .badge-item');
+  if (badges.length >= 3) {
+    badges[0].innerHTML = `<span class="material-icons badge-icon">verified</span>${dict.badge_guide}`;
+    badges[1].innerHTML = `<span class="material-icons badge-icon">border_color</span>${dict.badge_doc}`;
+    badges[2].innerHTML = `<span class="material-icons badge-icon">payments</span>${dict.badge_pay}`;
+  }
+  
+  const infoItems = document.querySelectorAll('.info-item');
+  if (infoItems.length >= 3) {
+    infoItems[0].querySelector('h4').textContent = dict.info_address_title;
+    infoItems[0].querySelector('p').textContent = dict.info_address_desc;
+    infoItems[1].querySelector('h4').textContent = dict.info_phone_title;
+    infoItems[1].querySelector('p').textContent = dict.info_phone_desc;
+    infoItems[2].querySelector('h4').textContent = dict.info_email_title;
+    infoItems[2].querySelector('p').textContent = dict.info_email_desc;
+  }
+  
+  const formTitle = document.querySelector('.contact-form-column .column-title');
+  if (formTitle) formTitle.textContent = dict.form_title;
+  const contactName = document.getElementById('contactName');
+  if (contactName) contactName.placeholder = dict.form_name_placeholder;
+  const contactEmail = document.getElementById('contactEmail');
+  if (contactEmail) contactEmail.placeholder = dict.form_email_placeholder;
+  const contactMessage = document.getElementById('contactMessage');
+  if (contactMessage) contactMessage.placeholder = dict.form_msg_placeholder;
+  const btnSubmitContact = document.getElementById('btnSubmitContact');
+  if (btnSubmitContact) {
+    btnSubmitContact.innerHTML = `<span>${dict.form_submit_btn}</span><span class="material-icons">send</span>`;
+  }
+  
+  const helpdeskH2 = document.querySelector('.helpdesk-header h2');
+  if (helpdeskH2) helpdeskH2.textContent = dict.helpdesk_title;
+  const helpdeskP = document.querySelector('.helpdesk-header p');
+  if (helpdeskP) helpdeskP.textContent = dict.helpdesk_desc;
+  
+  const footerInfoCol = document.querySelector('.footer-info-col h3');
+  if (footerInfoCol) footerInfoCol.textContent = dict.helpdesk_title;
+  const footerInfoPs = document.querySelectorAll('.footer-info-col p');
+  if (footerInfoPs.length >= 3) {
+    footerInfoPs[0].textContent = dict.portal_subtitle;
+    footerInfoPs[1].textContent = dict.info_address_desc;
+    footerInfoPs[2].textContent = footerInfoPs[2].textContent.includes('โทรศัพท์') || footerInfoPs[2].textContent.includes('Tel') ? (currentLang === 'th' ? 'โทรศัพท์: 053-943528 (งานบริหารงานวิจัย) หรือ 053-943502 (งานวิเทศสัมพันธ์)' : 'Tel: 053-943528 (Research) or 053-943502 (International Relations)') : footerInfoPs[2].textContent;
+  }
+  
+  const footerLinksCols = document.querySelectorAll('.footer-links-col');
+  if (footerLinksCols.length >= 2) {
+    footerLinksCols[0].querySelector('h4').textContent = dict.footer_related_title;
+    const relatedLinks = footerLinksCols[0].querySelectorAll('ul li a');
+    if (relatedLinks.length >= 2) {
+      relatedLinks[0].textContent = dict.footer_related_ora;
+      relatedLinks[1].textContent = dict.footer_related_faculty;
+    }
+    
+    footerLinksCols[1].querySelector('h4').textContent = dict.footer_cat_title;
+    const catLinks = footerLinksCols[1].querySelectorAll('ul li a');
+    if (catLinks.length >= 3) {
+      catLinks[0].textContent = dict.footer_cat_initiation;
+      catLinks[1].textContent = dict.footer_cat_banking;
+      catLinks[2].textContent = dict.footer_cat_finance;
+    }
+  }
+  
+  const footerBottomPs = document.querySelectorAll('.footer-bottom p');
+  if (footerBottomPs.length >= 2) {
+    footerBottomPs[0].innerHTML = `&copy; 2026 ${dict.footer_desc.split('. ')[0]}. All Rights Reserved.`;
+    footerBottomPs[1].textContent = dict.footer_desc.split('. ')[1] || "Designed and developed to support CMU faculty and researchers.";
+  }
+  
+  const chatBtnText = document.getElementById('chatBtnText');
+  if (chatBtnText) chatBtnText.textContent = dict.chat_float_title;
+  const chatTooltipText = document.getElementById('chatTooltipText');
+  if (chatTooltipText) chatTooltipText.textContent = dict.chat_float_tooltip;
+  const chatPanelHeaderTitle = document.getElementById('chatPanelHeaderTitle');
+  if (chatPanelHeaderTitle) chatPanelHeaderTitle.textContent = dict.chat_float_title;
+  const chatWelcomeTitleText = document.getElementById('chatWelcomeTitleText');
+  if (chatWelcomeTitleText) chatWelcomeTitleText.textContent = dict.chat_welcome_title;
+  const chatWelcomeDescText = document.getElementById('chatWelcomeDescText');
+  if (chatWelcomeDescText) chatWelcomeDescText.textContent = dict.chat_welcome_desc;
+  const startChatBtn = document.getElementById('startChatBtn');
+  if (startChatBtn) startChatBtn.textContent = dict.chat_start_btn;
+  
+  const btnTabWorkflowSpan = document.querySelector('#btnTabWorkflow span:nth-child(2)');
+  if (btnTabWorkflowSpan) btnTabWorkflowSpan.textContent = dict.tab_workflow;
+  const btnTabDocsSpan = document.querySelector('#btnTabDocs span:nth-child(2)');
+  if (btnTabDocsSpan) btnTabDocsSpan.textContent = dict.tab_docs;
+  const btnTabGeneratorSpan = document.querySelector('#btnTabGenerator span:nth-child(2)');
+  if (btnTabGeneratorSpan) btnTabGeneratorSpan.textContent = dict.tab_generator;
+
+  renderCategories();
+  renderServices();
+  renderStaff();
+  
+  const chatBody = document.getElementById('assistantChatBody');
+  if (chatBody && chatBody.classList.contains('active')) {
+    initChatBot();
+  }
+}
+
+function initChatEvents() {
+  const chatFloatingBtn = document.getElementById('chatFloatingBtn');
+  const closeChatBtn = document.getElementById('closeChatBtn');
+  const startChatBtn = document.getElementById('startChatBtn');
+  const assistantPanel = document.getElementById('assistantPanel');
+  const assistantWelcomeScreen = document.getElementById('assistantWelcomeScreen');
+  const assistantChatBody = document.getElementById('assistantChatBody');
+  
+  if (chatFloatingBtn && assistantPanel) {
+    chatFloatingBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      assistantPanel.classList.toggle('active');
+    });
+  }
+  
+  if (closeChatBtn && assistantPanel) {
+    closeChatBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      assistantPanel.classList.remove('active');
+    });
+  }
+  
+  document.addEventListener('click', (e) => {
+    if (assistantPanel && assistantPanel.classList.contains('active')) {
+      if (!assistantPanel.contains(e.target) && !chatFloatingBtn.contains(e.target)) {
+        assistantPanel.classList.remove('active');
+      }
+    }
+  });
+
+  if (startChatBtn && assistantWelcomeScreen && assistantChatBody) {
+    startChatBtn.addEventListener('click', () => {
+      assistantWelcomeScreen.style.display = 'none';
+      assistantChatBody.classList.add('active');
+      initChatBot();
+    });
+  }
+}
+
 /* ==========================================================================
    2. CATEGORY TABS RENDERING
    ========================================================================== */
@@ -82,7 +302,7 @@ function renderCategories() {
   const categoryTabs = document.getElementById('categoryTabs');
   if (!categoryTabs) return;
 
-  const cats = RESEARCH_DATA.categories;
+  const cats = getActiveData().categories;
   const row1 = cats.slice(0, 3);
   const row2 = cats.slice(3, 6);
 
@@ -125,8 +345,11 @@ function renderServices() {
   const servicesGrid = document.getElementById('servicesGrid');
   if (!servicesGrid) return;
 
+  const activeData = getActiveData();
+  const dict = TRANSLATIONS[currentLang] || TRANSLATIONS.th;
+
   // กรองตามหมวดหมู่และคำค้นหา
-  const filteredServices = RESEARCH_DATA.services.filter(service => {
+  const filteredServices = activeData.services.filter(service => {
     const matchesCategory = currentCategory === 'all' || service.category === currentCategory;
 
     const query = searchQuery.toLowerCase().trim();
@@ -145,15 +368,16 @@ function renderServices() {
     servicesGrid.innerHTML = `
       <div class="empty-results glass-panel">
         <span class="material-icons">search_off</span>
-        <h4>ไม่พบข้อมูลการให้บริการที่ตรงกับคำค้นหาของคุณ</h4>
-        <p>ลองค้นหาด้วยคำอื่น เช่น "เปิดบัญชี", "เบิกเงินงวด", "Page Charge", "ยุทธศาสตร์" เป็นต้น</p>
+        <h4>${dict.empty_results_title}</h4>
+        <p>${dict.empty_results_desc}</p>
       </div>
     `;
     return;
   }
 
   servicesGrid.innerHTML = filteredServices.map(service => {
-    const catObj = RESEARCH_DATA.categories.find(c => c.id === service.category);
+    const catObj = activeData.categories.find(c => c.id === service.category);
+    const readGuideLabel = currentLang === 'en' ? 'Read Guide' : 'อ่านคู่มือ';
     return `
       <article class="service-card glass-panel" onclick="openServiceDetail(${service.id})">
         <div class="card-top">
@@ -169,7 +393,7 @@ function renderServices() {
         <div class="card-footer-row">
           <span class="service-cat-tag">${catObj ? catObj.title.replace(/^\d+\.\s*/, '') : ''}</span>
           <span class="learn-more-btn">
-            <span>อ่านคู่มือ</span>
+            <span>${readGuideLabel}</span>
             <span class="material-icons">chevron_right</span>
           </span>
         </div>
@@ -264,7 +488,8 @@ function initModalEvents() {
 }
 
 function openServiceDetail(serviceId) {
-  const service = RESEARCH_DATA.services.find(s => s.id === serviceId);
+  const activeData = getActiveData();
+  const service = activeData.services.find(s => s.id === serviceId);
   if (!service) return;
 
   activeService = service;
@@ -273,7 +498,7 @@ function openServiceDetail(serviceId) {
   // อัปเดตข้อมูลพอร์ทัล Modal
   document.getElementById('modalServiceTitle').textContent = service.title;
 
-  const catObj = RESEARCH_DATA.categories.find(c => c.id === service.category);
+  const catObj = activeData.categories.find(c => c.id === service.category);
   document.getElementById('modalServiceCat').textContent = catObj ? catObj.title : '';
   document.getElementById('modalServiceSummary').textContent = service.summary;
   document.getElementById('modalTitleIcon').textContent = service.icon;
@@ -316,10 +541,13 @@ function renderWorkflowTimelines(service) {
   const researcherTimeline = document.getElementById('researcherWorkflowTimeline');
   const staffTimeline = document.getElementById('staffWorkflowTimeline');
 
+  const researcherTitle = currentLang === 'en' ? 'Researcher & Faculty Workflow Steps' : 'ขั้นตอนการดำเนินการของผู้วิจัยและคณาจารย์';
+  const staffTitle = currentLang === 'en' ? 'Faculty Research Office Workflow Steps' : 'ขั้นตอนงานบริหารงานวิจัย คณะสังคมศาสตร์ ดำเนินการ';
+
   researcherTimeline.innerHTML = `
     <div class="timeline-role-header researcher">
       <span class="material-icons">person</span>
-      <span>ขั้นตอนการดำเนินการของผู้วิจัยและคณาจารย์</span>
+      <span>${researcherTitle}</span>
     </div>
     ${service.researcherSteps.map(s => `
       <div class="timeline-node">
@@ -334,7 +562,7 @@ function renderWorkflowTimelines(service) {
   staffTimeline.innerHTML = `
     <div class="timeline-role-header staff">
       <span class="material-icons">engineering</span>
-      <span>ขั้นตอนงานบริหารงานวิจัย คณะสังคมศาสตร์ ดำเนินการ</span>
+      <span>${staffTitle}</span>
     </div>
     ${service.staffSteps.map(s => `
       <div class="timeline-node">
@@ -350,7 +578,8 @@ function renderWorkflowTimelines(service) {
 function renderRequiredDocs(service) {
   const docsListContainer = document.getElementById('modalRequiredDocsList');
   if (service.documents.length === 0) {
-    docsListContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 24px;">ไม่มีเอกสารระบุจำเพาะสำหรับบริการนี้</p>';
+    const noDocsMsg = currentLang === 'en' ? 'No specific documents specified for this service.' : 'ไม่มีเอกสารระบุจำเพาะสำหรับบริการนี้';
+    docsListContainer.innerHTML = `<p style="text-align: center; color: var(--text-muted); padding: 24px;">${noDocsMsg}</p>`;
     return;
   }
 
@@ -1847,12 +2076,15 @@ const CHAT_FLOW = {
 function initChatBot() {
   // เริ่มการคุยแรกเริ่ม
   chatHistory = [];
+  const chatBoxArea = document.getElementById('chatBoxArea');
+  if (chatBoxArea) chatBoxArea.innerHTML = '';
   goToChatStep('start');
 }
 
 function goToChatStep(stepId) {
   currentChatStep = stepId;
-  const step = CHAT_FLOW[stepId];
+  const flow = currentLang === 'en' ? CHAT_FLOW_EN : CHAT_FLOW;
+  const step = flow[stepId];
   if (!step) return;
 
   // 1. เพิ่มข้อความ Bot ลงใน Chat Box
@@ -1890,7 +2122,8 @@ function addChatMessage(sender, text) {
 }
 
 function handleChatOptionClick(optionIdx) {
-  const step = CHAT_FLOW[currentChatStep];
+  const flow = currentLang === 'en' ? CHAT_FLOW_EN : CHAT_FLOW;
+  const step = flow[currentChatStep];
   if (!step) return;
 
   const selectedOption = step.options[optionIdx];
@@ -1919,13 +2152,14 @@ function handleChatOptionClick(optionIdx) {
 function renderStaff() {
   const staffGrid = document.getElementById('staffGrid');
   const helpdeskSection = document.getElementById('helpdeskSection');
-  if (!RESEARCH_DATA.contacts || RESEARCH_DATA.contacts.length === 0) {
+  const activeData = getActiveData();
+  if (!activeData.contacts || activeData.contacts.length === 0) {
     if (helpdeskSection) helpdeskSection.style.display = 'none';
     return;
   }
   if (!staffGrid) return;
 
-  staffGrid.innerHTML = RESEARCH_DATA.contacts.map(staff => `
+  staffGrid.innerHTML = activeData.contacts.map(staff => `
     <article class="staff-card glass-panel">
       <div class="staff-avatar" aria-hidden="true">${staff.avatar}</div>
       <h3>${staff.name}</h3>
