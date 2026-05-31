@@ -805,16 +805,16 @@ body.dark-mode .card-footer-row {
 }
 
 .learn-more-btn {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--primary);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
 }
 
 .learn-more-btn span {
-  font-size: 18px;
+  font-size: 15px;
   transition: var(--transition-fast);
 }
 
