@@ -403,6 +403,7 @@ const RESEARCH_DATA = {
       documents: [
         { name: 'แบบฟอร์ม-คำขอรับเงิน-APC-19-04-66.docx', type: 'doc', status: 'จำเป็นกรณีขอค่าตีพิมพ์' },
         { name: 'แบบฟอร์ม-คำขอรับเงิน-ค่าตอบแทน-19-04-66.docx', type: 'doc', status: 'จำเป็นกรณีขอรับค่าตอบแทน' },
+        { name: 'ประกาศ-มช.-กำหนดประเภทรายจ่าย-13-2566-ค่าตอบแทน-APC.pdf', type: 'pdf', status: 'คู่มืออ้างอิง' },
         { name: 'สำเนาบทความวิชาการตีพิมพ์ฉบับสมบูรณ์ (Reprint) แสดงรายละเอียดผู้เขียนและชื่อสังกัดคณะสังคมศาสตร์ มช.', type: 'pdf', status: 'จำเป็น' },
         { name: 'หลักฐานตรวจสอบค่า Quartile / SJR Ranking ของวารสารระดับนานาชาติ หรือใบรับรองผลงาน TCI', type: 'pdf', status: 'จำเป็น' }
       ],
@@ -450,8 +451,9 @@ const RESEARCH_DATA = {
       ],
 
       documents: [
-        { name: 'แบบฟอร์ม-คำขอรับเงิน-APC-19-04-66.docx', type: 'doc', status: 'จำเป็นกรณีขอค่าตีพิมพ์' },
-        { name: 'แบบฟอร์ม-คำขอรับเงิน-ค่าตอบแทน-19-04-66.docx', type: 'doc', status: 'จำเป็นกรณีขอรับค่าตอบแทน' },
+        { name: 'FORM Request H-Index_2024.docx', type: 'doc', status: 'จำเป็นกรณีขอค่าตีพิมพ์' },
+        { name: 'FORM Request H-Index_2024.pdf', type: 'pdf', status: 'จำเป็นกรณีขอค่าตีพิมพ์' },
+        { name: 'ประกาศ มช.27_2566_ค่าตอบแทน Review article NLSC.pdf', type: 'pdf', status: 'คู่มืออ้างอิง' },
         { name: 'สำเนาบทความวิชาการตีพิมพ์ฉบับสมบูรณ์ (Reprint) แสดงรายละเอียดผู้เขียนและชื่อสังกัดคณะสังคมศาสตร์ มช.', type: 'pdf', status: 'จำเป็น' },
         { name: 'หลักฐานตรวจสอบค่า Quartile / SJR Ranking ของวารสารระดับนานาชาติ หรือใบรับรองผลงาน TCI', type: 'pdf', status: 'จำเป็น' }
       ],

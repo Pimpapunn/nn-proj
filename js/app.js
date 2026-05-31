@@ -31,6 +31,7 @@ const AVAILABLE_RESEARCH_FILES = [
   "9.Certifying Letter of Project Leader to Faculty.docx",
   "แบบฟอร์ม-คำขอรับเงิน-APC-19-04-66.docx",
   "แบบฟอร์ม-คำขอรับเงิน-ค่าตอบแทน-19-04-66.docx",
+  "ประกาศ-มช.-กำหนดประเภทรายจ่าย-13-2566-ค่าตอบแทน-APC.pdf",
   "FORM Request H-Index_2024.docx",
   "FORM Request H-Index_2024.pdf",
   "ประกาศ มช.27_2566_ค่าตอบแทน Review article NLSC.pdf"
