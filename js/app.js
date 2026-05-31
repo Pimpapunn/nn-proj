@@ -30,7 +30,10 @@ const AVAILABLE_RESEARCH_FILES = [
   "8.Certifying Letter of Project Leader to CMU.docx",
   "9.Certifying Letter of Project Leader to Faculty.docx",
   "แบบฟอร์ม-คำขอรับเงิน-APC-19-04-66.docx",
-  "แบบฟอร์ม-คำขอรับเงิน-ค่าตอบแทน-19-04-66.docx"
+  "แบบฟอร์ม-คำขอรับเงิน-ค่าตอบแทน-19-04-66.docx",
+  "FORM Request H-Index_2024.docx",
+  "FORM Request H-Index_2024.pdf",
+  "ประกาศ มช.27_2566_ค่าตอบแทน Review article NLSC.pdf"
 ];
 
 // โหลดระบบเมื่อหน้าเว็บพร้อม
