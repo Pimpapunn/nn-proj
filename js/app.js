@@ -121,7 +121,7 @@ function updateLanguageUI() {
   if (heroBadge) heroBadge.textContent = dict.hero_tag;
   const heroH2 = document.querySelector('.hero-section h2');
   if (heroH2) {
-    heroH2.innerHTML = `${dict.hero_title} <span class="accent-text">${dict.hero_title_accent}</span>`;
+    heroH2.innerHTML = `${dict.hero_title}<span class="accent-text">${dict.hero_title_accent}</span>`;
   }
   const heroSub = document.querySelector('.hero-subtitle');
   if (heroSub) heroSub.textContent = dict.hero_subtitle;
