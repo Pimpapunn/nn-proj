@@ -131,15 +131,15 @@ function updateLanguageUI() {
   const clearSearchBtn = document.getElementById('clearSearchBtn');
   if (clearSearchBtn) clearSearchBtn.title = dict.clear_search;
   
-  const relatedH3 = document.querySelector('.quick-portal-section .section-header h3');
-  if (relatedH3) relatedH3.textContent = dict.related_systems_title;
+  const relatedH2 = document.querySelector('.quick-portal-section .section-header h2');
+  if (relatedH2) relatedH2.textContent = dict.related_systems_title;
   const relatedP1 = document.querySelector('.quick-portal-section .section-header p:nth-of-type(1)');
   if (relatedP1) relatedP1.textContent = dict.related_systems_desc_th;
   const relatedP2 = document.querySelector('.quick-portal-section .section-header p:nth-of-type(2)');
   if (relatedP2) relatedP2.textContent = dict.related_systems_desc_en;
   
   const portalCards = document.querySelectorAll('.portal-card');
-  if (portalCards.length >= 4) {
+  if (portalCards.length >= 5) {
     portalCards[0].querySelector('h3').textContent = dict.cmu_research_title;
     portalCards[0].querySelector('p').textContent = dict.cmu_research_desc;
     portalCards[1].querySelector('h3').textContent = dict.edoc_title;
@@ -148,6 +148,8 @@ function updateLanguageUI() {
     portalCards[2].querySelector('p').textContent = dict.eresearch_desc;
     portalCards[3].querySelector('h3').textContent = dict.gdrive_title;
     portalCards[3].querySelector('p').textContent = dict.gdrive_desc;
+    portalCards[4].querySelector('h3').textContent = dict.ics_title;
+    portalCards[4].querySelector('p').textContent = dict.ics_desc;
   }
   
   const contactH2 = document.querySelector('.direct-contact-section .section-header h2');

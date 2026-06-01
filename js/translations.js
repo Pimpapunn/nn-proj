@@ -88,7 +88,11 @@ const TRANSLATIONS = {
     modal_objective_title: "วัตถุประสงค์และเป้าหมาย",
     modal_tips_title: "ข้อแนะนำและจุดควรระวัง",
     modal_systems_title: "ระบบที่ต้องใช้งานร่วม",
-    modal_systems_empty: "ไม่มีระบบเฉพาะเจาะจงใช้งานสำหรับกระบวนการนี้"
+    modal_systems_empty: "ไม่มีระบบเฉพาะเจาะจงใช้งานสำหรับกระบวนการนี้",
+    
+    // ICS System
+    ics_title: "ระบบบริหารและจัดการผลงานทางวิชาการ (ICS)",
+    ics_desc: "ระบบสำหรับบันทึกและจัดการผลงานทางวิชาการ การตีพิมพ์ และภาระงานวิจัยของบุคลากรมหาวิทยาลัยเชียงใหม่"
   },
   en: {
     // Header & Hero
@@ -179,7 +183,11 @@ const TRANSLATIONS = {
     modal_objective_title: "Objectives & Goals",
     modal_tips_title: "Tips & Cautions",
     modal_systems_title: "Required Systems",
-    modal_systems_empty: "No specific system is required for this process."
+    modal_systems_empty: "No specific system is required for this process.",
+    
+    // ICS System
+    ics_title: "Academic Performance System (ICS)",
+    ics_desc: "CMU database system for recording and managing academic publications, research portfolios, and workloads."
   }
 };
 
